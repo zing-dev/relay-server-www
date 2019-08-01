@@ -5,17 +5,6 @@
         <img src="./../assets/headlogo.png" style="height:30px;margin-right:15px"/>
         <b-navbar-brand href="#">继电器模块</b-navbar-brand>
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
-
-        <b-collapse id="nav-collapse" is-nav>
-          <!-- Right aligned nav items -->
-          <b-navbar-nav class="ml-auto">
-            <!-- <b-nav-item-dropdown right>
-              <template slot="button-content"><em>User</em></template>
-              <b-dropdown-item href="#">Profile</b-dropdown-item>
-              <b-dropdown-item href="#">Sign Out</b-dropdown-item>
-            </b-nav-item-dropdown> -->
-          </b-navbar-nav>
-        </b-collapse>
       </b-navbar>
     </div>
     <div class="view">
@@ -158,7 +147,7 @@ export default {
       this.logFollow=ev
       if(this.logFollow){
         this.$nextTick(()=>{
-          this.$refs.scroller.scrollTop = this.$refs.scroller.scrollHeight + 147;
+          this.$refs.scroller.scrollTop = this.$refs.scroller.scrollHeight;
         })
       }
     }
