@@ -1,0 +1,172 @@
+<template>
+  <div id="app">
+    <div>
+      <b-navbar toggleable="lg" type="dark">
+        <img src="./../assets/headlogo.png" style="height:30px;margin-right:15px"/>
+        <b-navbar-brand href="#">继电器模块</b-navbar-brand>
+        <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+
+        <b-collapse id="nav-collapse" is-nav>
+          <!-- Right aligned nav items -->
+          <b-navbar-nav class="ml-auto">
+            <!-- <b-nav-item-dropdown right>
+              <template slot="button-content"><em>User</em></template>
+              <b-dropdown-item href="#">Profile</b-dropdown-item>
+              <b-dropdown-item href="#">Sign Out</b-dropdown-item>
+            </b-nav-item-dropdown> -->
+          </b-navbar-nav>
+        </b-collapse>
+      </b-navbar>
+    </div>
+    <div class="view">
+      <b-container class="home" fluid>
+        <b-row class="h100pct">
+          <b-col>
+             <div role="tablist" class="mb-4">
+                <State :value="stateVal" :serverConn='serverConn'></State>
+            </div>
+            <div role="tablist">
+                <System></System>
+            </div>
+          </b-col>
+          <b-col>
+             <div role="tablist" class="h100pct">
+              <b-card no-body class="h100pct">
+                <b-card-header class="header-control" header-tag="header" role="tab">
+                  <span v-b-toggle.accordion-3>日志</span>
+                  <div class="tool">
+                    <b-form-checkbox
+                    :checked="logFollow"
+                    @change="followLog"
+                    >滚动条跟随</b-form-checkbox>
+                    <b-button class="ml-3" size="sm" @click="clearLogs">清空日志</b-button>
+                  </div>
+                </b-card-header>
+                <b-collapse id="accordion-3" visible accordion="log" role="tabpanel">
+                  <b-card-body class="scroller logBody">
+                    <div ref="scroller">
+                      <template v-if="logs.length">
+                        <div>
+                          <b-list-group>
+                            <b-list-group-item :variant="log.type | logType" v-for="(log, index) in logs" :key="index">
+                              {{ log.value }}
+                            </b-list-group-item>
+                          </b-list-group>
+                        </div>
+                      </template>
+                      <b-list-group v-else>
+                        <b-list-group-item>暂无记录</b-list-group-item>
+                      </b-list-group>
+                    </div>
+                    
+                  </b-card-body>
+                </b-collapse>
+              </b-card>
+            </div>
+          </b-col>
+        </b-row>
+      </b-container>
+    </div>
+  </div>
+</template>
+
+<script>
+import State from './State.vue'
+import System from './System'
+import { constants } from 'crypto';
+export default {
+  name: 'app',
+  data(){
+    return{
+      logFollow:true,
+      socketState:'',
+      socket: null,
+      stateVal:{},
+      serverConn:true,
+      logs:[]
+    }
+  },
+  components: {
+    State,System
+  },
+  filters:{
+    logType(type) {
+      return {
+        Debug: 'primary',
+        Info: 'info',
+        Warn: 'warning',
+        Error: 'danger',
+        Fatal: 'dark'
+      }[type]
+    }
+  },
+  mounted(){
+    this.createSocket()
+  },
+  methods:{
+    clearLogs(){
+      this.logs=[]
+    },
+    createSocket() {
+        this.socketState = 'CONNECTING';
+        let wsUrl
+        if(process.env.NODE_ENV=='production'){
+            let { protocol,hostname, port } = document.location;
+            let scheme = protocol === 'https:' ? 'wss' : 'ws';
+            let wsPort = port ? (':' + port) : '';
+            wsUrl = scheme + '://' + hostname + wsPort + '/msg';
+        }else{
+            let { protocol } = document.location;
+            let hostname = '192.168.0.200', port = '13001';
+            let scheme = protocol === 'https:' ? 'wss' : 'ws';
+            let wsPort = port ? (':' + port) : '';
+            wsUrl = scheme + '://' + hostname + wsPort + '/msg';
+        }
+        this.socket = new WebSocket(wsUrl);
+        [
+            'onopen',
+            'onclose',
+            'onmessage',
+            'onerror'
+        ].forEach(event => {
+            this.socket[event] = this[event]
+        })
+    },
+    onopen(ev) {
+        this.socketState = 'CONNECTED';
+    },
+    onclose(ev) {
+        this.socketState = 'DISCONNECTED';
+        this.serverConn=false
+    },
+    onerror(ev) {
+        this.socketState = 'DISCONNECTED';
+    },
+    onmessage(ev) {
+        this.getData(ev)
+    },
+    getData(e){
+        let msg=JSON.parse(e.data)
+        if(msg.type=='sys_state'){
+          this.stateVal=msg.value
+        }else{
+          this.logs.push(msg.value)
+          this.followLog(this.logFollow)
+        }
+    },
+    followLog(ev){
+      this.logFollow=ev
+      if(this.logFollow){
+        this.$nextTick(()=>{
+          this.$refs.scroller.scrollTop = this.$refs.scroller.scrollHeight + 147;
+        })
+      }
+    }
+  }
+}
+</script>
+<style scoped>
+.logBody{ height: 660px; overflow: hidden;}
+.logBody>div{ overflow: auto; height:100%; }
+</style>
+
