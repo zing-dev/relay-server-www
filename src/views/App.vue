@@ -139,6 +139,9 @@ export default {
         if(msg.type=='sys_state'){
           this.stateVal=msg.value
         }else{
+          if(this.logs.length>100){
+            this.logs.splice(0,1)
+          }
           this.logs.push(msg.value)
           this.followLog(this.logFollow)
         }
