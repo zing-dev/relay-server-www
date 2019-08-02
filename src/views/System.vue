@@ -58,7 +58,7 @@ export default {
         }
     },
     methods:{
-       GetSystem(refresh=false){
+       GetSystem(){
             this.loading=true
             getSystem().then(res=>{
                 this.loading=false

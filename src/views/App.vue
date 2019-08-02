@@ -62,7 +62,7 @@
 <script>
 import State from './State.vue'
 import System from './System'
-import { constants } from 'crypto';
+import { constants } from 'crypto'
 export default {
   name: 'app',
   data(){
@@ -140,7 +140,7 @@ export default {
           this.stateVal=msg.value
         }else{
           if(this.logs.length>100){
-            this.logs.splice(0,1)
+            this.logs.shift()
           }
           this.logs.push(msg.value)
           this.followLog(this.logFollow)

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import qs from 'qs'
+
 // let base='http://192.168.0.200:13001/'
 const base = process.env.NODE_ENV === 'production' ? '' : '/api/';
 const NETWORK_ERROR = '网络连接异常.';
@@ -14,11 +14,10 @@ const postJson = (url, data) => {
 const async = request => {
     return new Promise((resolve, reject) => {
         request.then(({ status, data }) => {
-            if(status == 200) {
-                resolve(data)
-            }
-            else {
-                reject(false)
+            if(status == 200 && data.success) {
+                resolve(data.data)
+            } else {
+                reject(data.err_msg)
             }
         })
         .catch(err => {
