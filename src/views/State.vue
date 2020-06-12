@@ -3,6 +3,12 @@
         <b-card-header class="header-control" header-tag="header" role="tab">
             <span v-b-toggle.accordion-3>状态</span>
             <div class="tool">
+                <b-button size="sm" @click="runRelay">运行继电器</b-button>
+            </div>
+            <div class="tool">
+                <b-button size="sm" @click="openRelay">打开继电器</b-button>
+            </div>
+            <div class="tool">
             <b-button size="sm" @click="resetRelay">重置继电器</b-button>
             </div>
         </b-card-header>
@@ -71,12 +77,14 @@
             </b-card-body>
         </b-collapse>
     </b-card>
-    
+
 </template>
 <script>
-import {resetRelay} from '@/libs/https'
+
+import { resetRelay, runRelay, openRelay, exitRelay, closeRelay, heartBeat} from '@/libs/https'
 import Loading from '@/components/Loading'
 import toast from '@/mixins/toast'
+
 export default {
     name:'state',
     props:['value','serverConn'],
@@ -96,14 +104,14 @@ export default {
         }
     },
     mounted(){
-      
+
     },
     methods:{
        resetRelay(){
            this.loading=true
            resetRelay().then(res=>{
                this.loading=false
-               if(!res){
+               if(res){
                    this.toast('网络连接异常','danger')
                }else{
                    this.toast('重置成功','success')
@@ -112,7 +120,77 @@ export default {
                 this.loading=false
                 this.toast(error,'danger')
            })
-       }
+       },
+        runRelay(){
+            this.loading=true
+            runRelay().then(res=>{
+                this.loading=false
+                if(res){
+                    this.toast('网络连接异常','danger')
+                }else{
+                    this.toast('运行成功','success')
+                }
+            },error=>{
+                this.loading=false
+                this.toast('网络连接异常' + error,'danger')
+            })
+        },
+        openRelay(){
+            this.loading=true
+            openRelay().then(res=>{
+                this.loading=false
+                if(!res){
+                    this.toast('网络连接异常','danger')
+                }else{
+                    this.toast('打开成功','success')
+                }
+            },error=>{
+                this.loading=false
+                this.toast(error,'danger')
+            })
+        },
+        exitRelay(){
+            this.loading=true
+            exitRelay().then(res=>{
+                this.loading=false
+                if(!res){
+                    this.toast('网络连接异常','danger')
+                }else{
+                    this.toast('编辑成功','success')
+                }
+            },error=>{
+                this.loading=false
+                this.toast(error,'danger')
+            })
+        },
+        closeRelay(){
+            this.loading=true
+            closeRelay().then(res=>{
+                this.loading=false
+                if(!res){
+                    this.toast('网络连接异常','danger')
+                }else{
+                    this.toast('关闭成功','success')
+                }
+            },error=>{
+                this.loading=false
+                this.toast(error,'danger')
+            })
+        },
+        heartBeat(){
+            this.loading=true
+            heartBeat().then(res=>{
+                this.loading=false
+                if(!res){
+                    this.toast('网络连接异常','danger')
+                }else{
+                    this.toast('关闭成功','success')
+                }
+            },error=>{
+                this.loading=false
+                this.toast(error,'danger')
+            })
+        }
     }
 }
 </script>

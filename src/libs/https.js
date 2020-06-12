@@ -21,7 +21,7 @@ const async = request => {
             }
         })
         .catch(err => {
-            reject(NETWORK_ERROR)
+            reject(err)
         })
     })
 }
@@ -32,6 +32,31 @@ export const getSystem = data => {
 export const setSystem = data => {
     return async(postJson('set_system',data))
 }
-export const resetRelay = data => {
-    return async(getJson('reset_relay',data))
+
+export const runRelay = data => {
+    return async(getJson('relay/run',data))
 }
+
+export const exitRelay = data => {
+    return async(getJson('relay/exit',data))
+}
+
+export const openRelay = data => {
+    return async(getJson('open',data))
+}
+
+export const resetRelay = data => {
+    return async(getJson('reset',data))
+}
+
+export const closeRelay = data => {
+    return async(getJson('close',data))
+}
+
+export const heartBeat = data => {
+    return async(getJson('heartbeat',data))
+}
+
+
+
+

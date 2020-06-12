@@ -67,11 +67,11 @@ export default {
   name: 'app',
   data(){
     return{
-      logFollow:true,
+      logFollow: true,
       socketState:'',
       socket: null,
       stateVal:{},
-      serverConn:true,
+      serverConn: true,
       logs:[]
     }
   },
@@ -106,7 +106,7 @@ export default {
             wsUrl = scheme + '://' + hostname + wsPort + '/msg';
         }else{
             let { protocol } = document.location;
-            let hostname = '192.168.31.1729', port = '8081';
+            let hostname = '192.168.0.136', port = '8800';
             let scheme = protocol === 'https:' ? 'wss' : 'ws';
             let wsPort = port ? (':' + port) : '';
             wsUrl = scheme + '://' + hostname + wsPort + '/msg';

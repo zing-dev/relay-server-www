@@ -4,7 +4,7 @@ module.exports = {
         port: 8080,
         proxy: {
             '/api': {
-                target: 'http://192.168.31.179:8081',
+                target: 'http://192.168.0.136:8800',
                 changeOrigin: true,
                 ws: true,
                 pathRewrite: {
