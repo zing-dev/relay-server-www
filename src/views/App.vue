@@ -62,7 +62,7 @@
 <script>
 import State from './State.vue'
 import System from './System'
-import { constants } from 'crypto'
+
 export default {
   name: 'app',
   data(){
@@ -72,7 +72,7 @@ export default {
       socket: null,
       stateVal:{},
       serverConn: true,
-      logs:[]
+      logs:[],
     }
   },
   components: {
@@ -100,11 +100,12 @@ export default {
         this.socketState = 'CONNECTING';
         let wsUrl
         if(process.env.NODE_ENV=='production'){
-            let { protocol,hostname, port } = document.location;
-            let scheme = protocol === 'https:' ? 'wss' : 'ws';
-            let wsPort = port ? (':' + port) : '';
-            wsUrl = scheme + '://' + hostname + wsPort + '/msg';
-        }else{
+          let { protocol } = document.location;
+          let hostname = '192.168.0.136', port = '8800';
+          let scheme = protocol === 'https:' ? 'wss' : 'ws';
+          let wsPort = port ? (':' + port) : '';
+          wsUrl = scheme + '://' + hostname + wsPort + '/msg';
+        } else {
             let { protocol } = document.location;
             let hostname = '192.168.0.136', port = '8800';
             let scheme = protocol === 'https:' ? 'wss' : 'ws';
@@ -112,8 +113,7 @@ export default {
             wsUrl = scheme + '://' + hostname + wsPort + '/msg';
         }
         this.socket = new WebSocket(wsUrl);
-        [
-            'onopen',
+        [   'onopen',
             'onclose',
             'onmessage',
             'onerror'
@@ -121,23 +121,29 @@ export default {
             this.socket[event] = this[event]
         })
     },
-    onopen(ev) {
-        this.socketState = 'CONNECTED';
+    onopen(e) {
+      this.socketState = 'CONNECTED';
+      let msg=JSON.parse(e.data)
+      this.logs.push(msg.value)
     },
-    onclose(ev) {
-        this.socketState = 'DISCONNECTED';
-        this.serverConn=false
+    onclose(e) {
+      this.socketState = 'DISCONNECTED';
+      this.serverConn=false
+      let msg=JSON.parse(e.data)
+      this.logs.push(msg.value)
     },
-    onerror(ev) {
-        this.socketState = 'DISCONNECTED';
+    onerror(e) {
+      this.socketState = 'DISCONNECTED';
+      let msg=JSON.parse(e.data)
+      this.logs.push(msg.value)
     },
     onmessage(ev) {
         this.getData(ev)
     },
     getData(e){
         let msg=JSON.parse(e.data)
-        if(msg.type=='sys_state'){
-          this.stateVal=msg.value
+      if(msg.type=='sys_state'){
+          this.stateVal=msg.data
         }else{
           if(this.logs.length>100){
             this.logs.shift()

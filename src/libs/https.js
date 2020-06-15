@@ -14,7 +14,7 @@ const postJson = (url, data) => {
 const async = request => {
     return new Promise((resolve, reject) => {
         request.then(({ status, data }) => {
-            if(status == 200 && data.success) {
+            if(status == 200) {
                 resolve(data.data)
             } else {
                 reject(data.err_msg)
@@ -43,6 +43,10 @@ export const exitRelay = data => {
 
 export const openRelay = data => {
     return async(getJson('open',data))
+}
+
+export const openRelaySpecial = data => {
+    return async(getJson('open?branches=' + data))
 }
 
 export const resetRelay = data => {
