@@ -15,7 +15,7 @@
                             <label for="inline-form-input-name">继电器串口:</label>
                         </div>
                         <div>
-                            <b-form-input type="number" v-model="result.RelayPort" @change="update"></b-form-input>
+                            <b-form-input type="number" v-model="result.relay_port" @change="update"></b-form-input>
                         </div>
                     </div>
                     <div class="inputWrap">
@@ -23,7 +23,7 @@
                             <label for="inline-form-input-name">保存日志的时间(天):</label>
                         </div>
                         <div>
-                            <b-form-input type="number" v-model="result.SaveLogTime" @change="update"></b-form-input>
+                            <b-form-input type="number" v-model="result.save_log_time" @change="update"></b-form-input>
                         </div>
                     </div>
                     <div class="inputWrap">
@@ -31,7 +31,23 @@
                            <label for="inline-form-input-name">自动重置继电器(秒):</label>
                         </div>
                         <div>
-                            <b-form-input type="number" v-model="result.AutoResetTime" @change="update"></b-form-input>
+                            <b-form-input type="number" v-model="result.auto_reset_time" @change="update"></b-form-input>
+                        </div>
+                    </div>
+                    <div class="inputWrap">
+                        <div>
+                            <label for="inline-form-input-name">继电器路数:</label>
+                        </div>
+                        <div>
+                            <b-form-input type="number" v-model="result.branch_num" @change="update"></b-form-input>
+                        </div>
+                    </div>
+                    <div class="inputWrap">
+                        <div>
+                            <label for="inline-form-input-name">MQTT地址:</label>
+                        </div>
+                        <div>
+                            <b-form-input type="string" v-model="result.mq_address" @change="update"></b-form-input>
                         </div>
                     </div>
                 </b-form>
@@ -50,10 +66,12 @@ export default {
     data(){
         return{
             loading:false,
-            result:{
-                RelayPort:0,
-                SaveLogTime:0,
-                AutoResetTime:0
+            data:{
+                relay_port:0,
+                save_log_time:0,
+                auto_reset_time:0,
+                branch_num:0,
+                mq_address:0
             },
         }
     },
@@ -62,8 +80,8 @@ export default {
             this.loading=true
             getSystem().then(res=>{
                 this.loading=false
-                let {RelayPort,SaveLogTime,AutoResetTime}=res
-                this.result={RelayPort,SaveLogTime,AutoResetTime}
+                let {branch_num,relay_port,save_log_time,mq_address,auto_reset_time}=res
+                this.result={branch_num,relay_port,save_log_time,mq_address,auto_reset_time}
             },error=>{
                 this.loading=false
                 this.toast(error,'danger')
@@ -71,11 +89,12 @@ export default {
        },
        update(){
             this.loading=true
-            let {RelayPort,SaveLogTime,AutoResetTime}=this.result
+            let {branch_num,relay_port,save_log_time,mq_address,auto_reset_time}=this.result
             let result={
-                RelayPort:parseFloat(RelayPort),
-                SaveLogTime:parseFloat(SaveLogTime),
-                AutoResetTime:parseFloat(AutoResetTime),
+                relay_port:parseFloat(relay_port),
+                save_log_time:parseFloat(save_log_time),
+                auto_reset_time:parseFloat(auto_reset_time),
+                branch_num:parseFloat(branch_num),
             }
             setSystem(JSON.stringify(result)).then(res=>{
                 this.loading=false

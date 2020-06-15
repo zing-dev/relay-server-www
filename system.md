@@ -33,11 +33,11 @@ type SystemParam struct {
   "success": true,
   "err_msg": "",
   "data": {
-    "ID": 1,
-    "RelayPort": 2,
-    "SaveLogTime": 30,
-    "MqAddress": "192.168.0.248",
-    "AutoResetTime": 0
+    "branch_num": 32,
+    "relay_port": 2,
+    "save_log_time": 30,
+    "mq_address": "192.168.0.248",
+    "auto_reset_time": 0
   }
 }
 
@@ -52,10 +52,11 @@ type SystemParam struct {
 #### 参数:  
 ```json
 {
-  "RelayPort": 2,
-  "SaveLogTime": 30,
-  "MqAddress": "192.168.0.248",
-  "AutoResetTime": 0
+  "branch_num": 32,
+  "relay_port": 2,
+  "save_log_time": 30,
+  "mq_address": "192.168.0.248",
+  "auto_reset_time": 0
 }
 
 ```

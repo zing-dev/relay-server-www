@@ -29,6 +29,9 @@
                     </b-row>
                 </b-card-text> </span>
 
+                <b-col><span class="w6em">运行时间：</span><span class="fB">{{value.running_time | time}}</span></b-col>
+                <b-col><span class="w6em">前后端闭合：</span><span class="fB">{{serverConn?'连接':'断开'}}</span></b-col>
+
             </b-card-body>
         </b-collapse>
     </b-card>
