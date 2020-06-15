@@ -37,8 +37,8 @@
                       <template v-if="logs.length">
                         <div>
                           <b-list-group>
-                            <b-list-group-item :variant="log.type | logType" v-for="(log, index) in logs" :key="index">
-                              {{ log.value }}
+                            <b-list-group-item :variant="log.level" v-for="(log, index) in logs" :key="index">
+                              {{ log.msg }}
                             </b-list-group-item>
                           </b-list-group>
                         </div>
@@ -137,23 +137,23 @@ export default {
       let msg=JSON.parse(e.data)
       this.logs.push(msg.value)
     },
-    onmessage(ev) {
-        this.getData(ev)
+    onmessage(e) {
+        this.getData(e)
     },
     getData(e){
         let msg=JSON.parse(e.data)
-      if(msg.type=='sys_state'){
+      if(msg.type=='sys_state') {
           this.stateVal=msg.data
-        }else{
+        } else {
           if(this.logs.length>100){
             this.logs.shift()
           }
-          this.logs.push(msg.value)
+          this.logs.push(msg)
           this.followLog(this.logFollow)
         }
     },
-    followLog(ev){
-      this.logFollow=ev
+    followLog(e){
+      this.logFollow=e
       if(this.logFollow){
         this.$nextTick(()=>{
           this.$refs.scroller.scrollTop = this.$refs.scroller.scrollHeight;
