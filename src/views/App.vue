@@ -38,7 +38,7 @@
                         <div>
                           <b-list-group>
                             <b-list-group-item :variant="log.level" v-for="(log, index) in logs" :key="index">
-                              {{ log.msg +  "  " + log.time }}
+                              {{ log.time +  "  " + log.msg }}
                             </b-list-group-item>
                           </b-list-group>
                         </div>
