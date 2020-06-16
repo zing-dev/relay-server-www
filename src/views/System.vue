@@ -15,7 +15,7 @@
                             <label for="inline-form-input-name">继电器串口:</label>
                         </div>
                         <div>
-                            <b-form-input type="number" v-model="result.relay_port" @change="update"></b-form-input>
+                            <b-form-input type="number" v-model="data.relay_port" @change="update"></b-form-input>
                         </div>
                     </div>
                     <div class="inputWrap">
@@ -23,7 +23,7 @@
                             <label for="inline-form-input-name">保存日志的时间(天):</label>
                         </div>
                         <div>
-                            <b-form-input type="number" v-model="result.save_log_time" @change="update"></b-form-input>
+                            <b-form-input type="number" v-model="data.save_log_time" @change="update"></b-form-input>
                         </div>
                     </div>
                     <div class="inputWrap">
@@ -31,7 +31,7 @@
                            <label for="inline-form-input-name">自动重置继电器(秒):</label>
                         </div>
                         <div>
-                            <b-form-input type="number" v-model="result.auto_reset_time" @change="update"></b-form-input>
+                            <b-form-input type="number" v-model="data.auto_reset_time" @change="update"></b-form-input>
                         </div>
                     </div>
                     <div class="inputWrap">
@@ -39,7 +39,7 @@
                             <label for="inline-form-input-name">继电器路数:</label>
                         </div>
                         <div>
-                            <b-form-input type="number" v-model="result.branch_num" @change="update"></b-form-input>
+                            <b-form-input type="number" v-model="data.branch_num" @change="update"></b-form-input>
                         </div>
                     </div>
                     <div class="inputWrap">
@@ -47,7 +47,7 @@
                             <label for="inline-form-input-name">MQTT地址:</label>
                         </div>
                         <div>
-                            <b-form-input type="string" v-model="result.mq_address" @change="update"></b-form-input>
+                            <b-form-input v-model="data.mq_address" @change="update"></b-form-input>
                         </div>
                     </div>
                 </b-form>
@@ -80,8 +80,12 @@ export default {
             this.loading=true
             getSystem().then(res=>{
                 this.loading=false
-                let {branch_num,relay_port,save_log_time,mq_address,auto_reset_time}=res
-                this.result={branch_num,relay_port,save_log_time,mq_address,auto_reset_time}
+                if(!res){
+                    this.toast('网络连接异常','danger')
+                }else{
+                    let {branch_num,relay_port,save_log_time,mq_address,auto_reset_time}=res
+                    this.data={branch_num,relay_port,save_log_time,mq_address,auto_reset_time}
+                }
             },error=>{
                 this.loading=false
                 this.toast(error,'danger')
@@ -89,16 +93,16 @@ export default {
        },
        update(){
             this.loading=true
-            let {branch_num,relay_port,save_log_time,mq_address,auto_reset_time}=this.result
-            let result={
+            let {branch_num,relay_port,save_log_time,auto_reset_time}=this.data
+            let data={
                 relay_port:parseFloat(relay_port),
                 save_log_time:parseFloat(save_log_time),
                 auto_reset_time:parseFloat(auto_reset_time),
                 branch_num:parseFloat(branch_num),
             }
-            setSystem(JSON.stringify(result)).then(res=>{
+            setSystem(JSON.stringify(data)).then(res=>{
                 this.loading=false
-                if(!res){
+                if(res){
                     this.toast('网络连接异常','danger')
                 }else{
                     this.toast('修改成功','success')

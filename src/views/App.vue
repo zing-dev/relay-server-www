@@ -120,21 +120,15 @@ export default {
             this.socket[event] = this[event]
         })
     },
-    onopen(e) {
+    onopen() {
       this.socketState = 'CONNECTED';
-      let msg=JSON.parse(e.data)
-      this.logs.push(msg.value)
     },
-    onclose(e) {
+    onclose() {
       this.socketState = 'DISCONNECTED';
       this.serverConn=false
-      let msg=JSON.parse(e.data)
-      this.logs.push(msg.value)
     },
-    onerror(e) {
+    onerror() {
       this.socketState = 'DISCONNECTED';
-      let msg=JSON.parse(e.data)
-      this.logs.push(msg.value)
     },
     onmessage(e) {
         this.getData(e)

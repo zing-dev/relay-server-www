@@ -18,19 +18,18 @@
         <b-collapse id="accordion-3" visible accordion="log" role="tabpanel">
             <b-card-body class="scroller pR" >
                 <Loading v-if="loading"></Loading>
-
-                <span v-for="index in 16"> <b-card-text>
+                <div v-for="index in 16" :key="index">
                     <b-row>
-                        <b-col><span class="w6em">第{{index}}路:</span><span class="fB">{{value.branches[index].status?'闭合':'断开'}}&nbsp;&nbsp;&nbsp;{{value.branches[index].left_time | times}}</span>秒</b-col>
+                        <b-col><span class="w6em">第{{index}}路:</span><span class="fB">{{value.branches == null ? '断开': value.branches[index].status ? "闭合" : "断开"}}&nbsp;&nbsp;&nbsp;{{value.branches == null ? '': value.branches[index].left_time/1000000000}}</span>秒</b-col>
                           <div class="tool">
                               <b-button size="sm" @click="openRelaySpecial(index-1)">打开继电器</b-button>
                           </div>
-                        <b-col><span class="w6em">第{{index + 16}}路：</span><span class="fB">{{value.branches[index + 1].status?'闭合':'断开'}}&nbsp;&nbsp;&nbsp;{{value.branches[index+10].left_time | times}}</span>秒</b-col>
+                        <b-col><span class="w6em">第{{index + 16}}路:</span><span class="fB">{{value.branches == null ? '断开': value.branches[index].status ? "闭合" : "断开"}}&nbsp;&nbsp;&nbsp;{{value.branches == null ? '': value.branches[index].left_time/1000000000}}</span>秒</b-col>
                         <div class="tool">
-                              <b-button size="sm" @click="openRelaySpecial(index + 15)">打开继电器</b-button>
-                          </div>
+                            <b-button size="sm" @click="openRelaySpecial(index + 16)">打开继电器</b-button>
+                        </div>
                     </b-row>
-                </b-card-text> </span>
+                </div>
 
                 <b-col><span class="w6em">运行时间：</span><span class="fB">{{value.running_time | time}}</span></b-col>
                 <b-col><span class="w6em">前后端闭合：</span><span class="fB">{{serverConn?'连接':'断开'}}</span></b-col>
@@ -55,21 +54,21 @@ export default {
         return{
             socketState: '',
             socket: null,
-            loading: false
+            loading: false,
+            branch_num: 0,
         }
     },
     filters:{
         time(val){ if(val)
         return parseInt(val/86400)+"天 "+parseInt(val/3600%24)+"时 "+parseInt(val/60)+"分 "+parseInt(val%60)+"秒"
         },
-
         times(val){
             if(val)
                 return parseInt(val/1000000000)
         }
     },
     mounted(){
-        runRelay()
+
     },
     methods:{
        resetRelay(){
