@@ -38,7 +38,7 @@
                         <div>
                           <b-list-group>
                             <b-list-group-item :variant="log.level" v-for="(log, index) in logs" :key="index">
-                              {{ log.msg }}
+                              {{ log.msg +  "  " + log.time }}
                             </b-list-group-item>
                           </b-list-group>
                         </div>
@@ -100,12 +100,11 @@ export default {
         this.socketState = 'CONNECTING';
         let wsUrl
         if(process.env.NODE_ENV=='production'){
-          let { protocol } = document.location;
-          let hostname = '192.168.0.136', port = '8800';
+          let { protocol,hostname, port } = document.location;
           let scheme = protocol === 'https:' ? 'wss' : 'ws';
           let wsPort = port ? (':' + port) : '';
           wsUrl = scheme + '://' + hostname + wsPort + '/msg';
-        } else {
+        }else{
             let { protocol } = document.location;
             let hostname = '192.168.0.136', port = '8800';
             let scheme = protocol === 'https:' ? 'wss' : 'ws';

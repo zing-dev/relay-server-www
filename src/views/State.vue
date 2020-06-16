@@ -1,7 +1,7 @@
 <template>
     <b-card no-body class="h100pct">
         <b-card-header class="header-control" header-tag="header" role="tab">
-            <span v-b-toggle.accordion-3>36路继电器状态</span>
+            <span v-b-toggle.accordion-3>继电器状态</span>
             <div class="tool">
                 <b-button size="sm" @click="runRelay">运行继电器</b-button>
             </div>
@@ -11,20 +11,23 @@
             <div class="tool">
             <b-button size="sm" @click="resetRelay">重置继电器</b-button>
             </div>
+            <div class="tool">
+                <b-button size="sm" @click="closeRelay">关闭继电器</b-button>
+            </div>
         </b-card-header>
         <b-collapse id="accordion-3" visible accordion="log" role="tabpanel">
             <b-card-body class="scroller pR" >
                 <Loading v-if="loading"></Loading>
 
-                <span v-for="index in 8"> <b-card-text>
+                <span v-for="index in 16"> <b-card-text>
                     <b-row>
                         <b-col><span class="w6em">第{{index}}路:</span><span class="fB">{{value.branches[index].status?'闭合':'断开'}}&nbsp;&nbsp;&nbsp;{{value.branches[index].left_time | times}}</span>秒</b-col>
                           <div class="tool">
                               <b-button size="sm" @click="openRelaySpecial(index-1)">打开继电器</b-button>
                           </div>
-                        <b-col><span class="w6em">第{{index + 8}}路：</span><span class="fB">{{value.branches[index + 1].status?'闭合':'断开'}}&nbsp;&nbsp;&nbsp;{{value.branches[index+10].left_time | times}}</span>秒</b-col>
+                        <b-col><span class="w6em">第{{index + 16}}路：</span><span class="fB">{{value.branches[index + 1].status?'闭合':'断开'}}&nbsp;&nbsp;&nbsp;{{value.branches[index+10].left_time | times}}</span>秒</b-col>
                         <div class="tool">
-                              <b-button size="sm" @click="openRelaySpecial(index + 7)">打开继电器</b-button>
+                              <b-button size="sm" @click="openRelaySpecial(index + 15)">打开继电器</b-button>
                           </div>
                     </b-row>
                 </b-card-text> </span>
@@ -56,8 +59,7 @@ export default {
         }
     },
     filters:{
-        time(val){
-        if(val)
+        time(val){ if(val)
         return parseInt(val/86400)+"天 "+parseInt(val/3600%24)+"时 "+parseInt(val/60)+"分 "+parseInt(val%60)+"秒"
         },
 
@@ -67,7 +69,7 @@ export default {
         }
     },
     mounted(){
-
+        runRelay()
     },
     methods:{
        resetRelay(){
@@ -102,7 +104,7 @@ export default {
             this.loading=true
             openRelay().then(res=>{
                 this.loading=false
-                if(!res){
+                if(res){
                     this.toast('网络连接异常','danger')
                 }else{
                     this.toast('打开成功','success')
@@ -116,7 +118,7 @@ export default {
             this.loading=true
             openRelaySpecial(index).then(res=>{
                 this.loading=false
-                if(!res){
+                if(res){
                     this.toast('网络连接异常','danger')
                 }else{
                     this.toast('打开成功','success')
@@ -130,7 +132,7 @@ export default {
             this.loading=true
             exitRelay().then(res=>{
                 this.loading=false
-                if(!res){
+                if(res){
                     this.toast('网络连接异常','danger')
                 }else{
                     this.toast('编辑成功','success')
@@ -144,7 +146,7 @@ export default {
             this.loading=true
             closeRelay().then(res=>{
                 this.loading=false
-                if(!res){
+                if(res){
                     this.toast('网络连接异常','danger')
                 }else{
                     this.toast('关闭成功','success')
@@ -158,7 +160,7 @@ export default {
             this.loading=true
             heartBeat().then(res=>{
                 this.loading=false
-                if(!res){
+                if(res){
                     this.toast('网络连接异常','danger')
                 }else{
                     this.toast('关闭成功','success')

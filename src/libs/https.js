@@ -34,31 +34,31 @@ export const setSystem = data => {
 }
 
 export const runRelay = data => {
-    return async(getJson('relay/run',data))
+    return async(getJson('api/relay/run',data))
 }
 
 export const exitRelay = data => {
-    return async(getJson('relay/exit',data))
+    return async(getJson('api/relay/exit',data))
 }
 
 export const openRelay = data => {
-    return async(getJson('open',data))
+    return async(getJson('api/relay/open',data))
 }
 
 export const openRelaySpecial = data => {
-    return async(getJson('open?branches=' + data))
+    return async(getJson('api/relay/open?branches=' + data))
 }
 
 export const resetRelay = data => {
-    return async(getJson('reset',data))
+    return async(getJson('api/relay/reset',data))
 }
 
 export const closeRelay = data => {
-    return async(getJson('close',data))
+    return async(getJson('api/relay/close',data))
 }
 
 export const heartBeat = data => {
-    return async(getJson('heartbeat',data))
+    return async(getJson('api/relay/heartbeat',data))
 }
 
 
