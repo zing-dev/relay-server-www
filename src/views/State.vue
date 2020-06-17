@@ -18,13 +18,13 @@
         <b-collapse id="accordion-3" visible accordion="log" role="tabpanel">
             <b-card-body class="scroller pR" >
                 <Loading v-if="loading"></Loading>
-                <div v-for="index in data == null ? 16 : data.branch_num/2" :key="index">
+                <div v-for="index in (data.branch_num/2)" :key="index">
                     <b-row>
-                        <b-col><span class="w6em">第{{index}}路:</span><span class="fB">{{value.branches == null ? '断开': value.branches[index].status ? "闭合" : "断开"}}&nbsp;&nbsp;&nbsp;{{value.branches == null ? '': value.branches[index].left_time/1000000000}}</span>秒</b-col>
+                        <b-col><span class="w6em">第{{index}}路:</span><span class="fB">{{value.branches == null ? '断开': (value.branches[index - 1].status) ? "闭合" : "断开"}}&nbsp;&nbsp;&nbsp;{{value.branches == null ? '': value.branches[index - 1].left_time/1000000000}}</span>秒</b-col>
                           <div class="tool">
                               <b-button size="sm" @click="openRelaySpecial(index-1)">打开继电器</b-button>
                           </div>
-                        <b-col><span class="w6em">第{{index + data.branch_num/2}}路:</span><span class="fB">{{value.branches == null ? '断开': value.branches[index + data.branch_num/2 - 1].status ? "闭合" : "断开"}}&nbsp;&nbsp;&nbsp;{{value.branches == null ? '': value.branches[index + data.branch_num/2 - 1].left_time/1000000000}}</span>秒</b-col>
+                        <b-col><span class="w6em">第{{index + (data.branch_num/2)}}路:</span><span class="fB">{{value.branches == null ? '断开': value.branches[index + (data.branch_num/2 - 1)].status ? "闭合" : "断开"}}&nbsp;&nbsp;&nbsp;{{value.branches == null ? '': value.branches[index + (data.branch_num/2 - 1)].left_time/1000000000}}</span>秒</b-col>
                         <div class="tool">
                             <b-button size="sm" @click="openRelaySpecial(index + data.branch_num/2 - 1)">打开继电器</b-button>
                         </div>

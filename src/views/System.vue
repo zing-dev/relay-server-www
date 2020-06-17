@@ -106,6 +106,7 @@ export default {
                     this.toast('网络连接异常','danger')
                 }else{
                     this.toast('修改成功','success')
+                    location.reload()
                 }
             },error=>{
                 this.loading=false
