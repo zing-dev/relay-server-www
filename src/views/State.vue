@@ -1,7 +1,7 @@
 <template>
     <b-card no-body class="h100pct">
         <b-card-header class="header-control" header-tag="header" role="tab">
-            <span v-b-toggle.accordion-3>继电器状态</span>
+            <span v-b-toggle.accordion-3>{{data == null ? 32 : data.branch_num}} 路继电器</span>
             <div class="tool">
                 <b-button size="sm" @click="runRelay">运行继电器</b-button>
             </div>
@@ -18,15 +18,15 @@
         <b-collapse id="accordion-3" visible accordion="log" role="tabpanel">
             <b-card-body class="scroller pR" >
                 <Loading v-if="loading"></Loading>
-                <div v-for="index in 16" :key="index">
+                <div v-for="index in data == null ? 16 : data.branch_num/2" :key="index">
                     <b-row>
                         <b-col><span class="w6em">第{{index}}路:</span><span class="fB">{{value.branches == null ? '断开': value.branches[index].status ? "闭合" : "断开"}}&nbsp;&nbsp;&nbsp;{{value.branches == null ? '': value.branches[index].left_time/1000000000}}</span>秒</b-col>
                           <div class="tool">
                               <b-button size="sm" @click="openRelaySpecial(index-1)">打开继电器</b-button>
                           </div>
-                        <b-col><span class="w6em">第{{index + 16}}路:</span><span class="fB">{{value.branches == null ? '断开': value.branches[index].status ? "闭合" : "断开"}}&nbsp;&nbsp;&nbsp;{{value.branches == null ? '': value.branches[index].left_time/1000000000}}</span>秒</b-col>
+                        <b-col><span class="w6em">第{{index + data.branch_num/2}}路:</span><span class="fB">{{value.branches == null ? '断开': value.branches[index].status ? "闭合" : "断开"}}&nbsp;&nbsp;&nbsp;{{value.branches == null ? '': value.branches[index].left_time/1000000000}}</span>秒</b-col>
                         <div class="tool">
-                            <b-button size="sm" @click="openRelaySpecial(index + 16)">打开继电器</b-button>
+                            <b-button size="sm" @click="openRelaySpecial(index + data.branch_num/2 - 1)">打开继电器</b-button>
                         </div>
                     </b-row>
                 </div>
@@ -41,7 +41,7 @@
 </template>
 <script>
 
-import { resetRelay, runRelay, openRelay, openRelaySpecial, exitRelay, closeRelay, heartBeat} from '@/libs/https'
+import { resetRelay, runRelay, openRelay, openRelaySpecial, exitRelay, closeRelay, heartBeat, getSystem} from '@/libs/https'
 import Loading from '@/components/Loading'
 import toast from '@/mixins/toast'
 
@@ -55,12 +55,14 @@ export default {
             socketState: '',
             socket: null,
             loading: false,
-            branch_num: 0,
+            data:{
+                branch_num:0
+            }
         }
     },
     filters:{
         time(val){ if(val)
-        return parseInt(val/86400)+"天 "+parseInt(val/3600%24)+"时 "+parseInt(val/60)+"分 "+parseInt(val%60)+"秒"
+        return parseInt(val/86400)+"天 "+parseInt(val/3600%24)+"时 "+parseInt(val/3600)+"分 "+parseInt(val%60)+"秒"
         },
         times(val){
             if(val)
@@ -68,8 +70,9 @@ export default {
         }
     },
     mounted(){
-
+        this.GetSystem()
     },
+
     methods:{
        resetRelay(){
            this.loading=true
@@ -163,6 +166,21 @@ export default {
                     this.toast('网络连接异常','danger')
                 }else{
                     this.toast('关闭成功','success')
+                }
+            },error=>{
+                this.loading=false
+                this.toast(error,'danger')
+            })
+        },
+        GetSystem(){
+            this.loading=true
+            getSystem().then(res=>{
+                this.loading=false
+                if(!res){
+                    this.toast('网络连接异常','danger')
+                }else{
+                    let {branch_num}=res
+                    this.data={branch_num}
                 }
             },error=>{
                 this.loading=false
