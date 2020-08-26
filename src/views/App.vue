@@ -47,7 +47,7 @@
                         <b-list-group-item>暂无记录</b-list-group-item>
                       </b-list-group>
                     </div>
-
+                    
                   </b-card-body>
                 </b-collapse>
               </b-card>
@@ -106,7 +106,7 @@ export default {
           wsUrl = scheme + '://' + hostname + wsPort + '/msg';
         }else{
             let { protocol } = document.location;
-            let hostname = '192.168.0.136', port = '8800';
+            let hostname = '192.168.0.200', port = '13001';
             let scheme = protocol === 'https:' ? 'wss' : 'ws';
             let wsPort = port ? (':' + port) : '';
             wsUrl = scheme + '://' + hostname + wsPort + '/msg';
