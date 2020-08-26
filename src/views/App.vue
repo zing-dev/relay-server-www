@@ -2,7 +2,7 @@
   <div id="app">
     <div>
       <b-navbar toggleable="lg" type="dark">
-        <img src="./../assets/headlogo.png" style="height:50px;margin-right:15px"/>
+        <img src="./../assets/headlogo.png" style="height:30px;margin-right:15px"/>
         <b-navbar-brand href="#">继电器模块</b-navbar-brand>
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
       </b-navbar>
