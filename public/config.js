@@ -1,0 +1,1 @@
+var LOGO = 'headlogo.png';

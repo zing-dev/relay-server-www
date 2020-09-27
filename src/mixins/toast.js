@@ -6,8 +6,9 @@ export default {
                 toaster: 'b-toaster-top-center',
                 solid: true,
                 variant,
-                autoHideDelay:1500
+                autoHideDelay:500
             })
        },
 	}
 }
+

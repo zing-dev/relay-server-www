@@ -14,7 +14,7 @@ const postJson = (url, data) => {
 const async = request => {
     return new Promise((resolve, reject) => {
         request.then(({ status, data }) => {
-            if(status == 200) {
+            if(status == 200 && data.success) {
                 resolve(data.data)
             } else {
                 reject(data.err_msg)
@@ -26,8 +26,8 @@ const async = request => {
     })
 }
 
-export const getSystem = data => {
-    return async(getJson('get_system', data))
+export const getSystem = () => {
+    return async(getJson('get_system'))
 }
 export const setSystem = data => {
     return async(postJson('set_system',data))
@@ -49,6 +49,10 @@ export const openRelaySpecial = data => {
     return async(getJson('api/relay/open?branches=' + data))
 }
 
+export const closeRelaySpecial = data => {
+    return async(getJson('api/relay/close?branches=' + data))
+}
+
 export const resetRelay = data => {
     return async(getJson('api/relay/reset',data))
 }
@@ -59,6 +63,10 @@ export const closeRelay = data => {
 
 export const heartBeat = data => {
     return async(getJson('api/relay/heartbeat',data))
+}
+
+export const getVision = () => {
+    return async(getJson('api/version'))
 }
 
 

@@ -2,9 +2,14 @@
   <div id="app">
     <div>
       <b-navbar toggleable="lg" type="dark">
-        <img src="./../assets/headlogo.png" style="height:30px;margin-right:15px"/>
-        <b-navbar-brand href="#">继电器模块</b-navbar-brand>
-        <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+        <b-navbar-nav>
+          <img :src="'./' + LOGO" style="height:30px;margin-right:15px"  v-if="widthLogo"/>
+          <b-navbar-brand href="#">继电器模块</b-navbar-brand>
+          <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+         </b-navbar-nav>
+        <b-navbar-nav class="ml-auto">
+            <b-button size="sm" class="my-2 my-sm-0" v-b-modal.modal-1 @click="GetVision">版本信息</b-button>
+        </b-navbar-nav>
       </b-navbar>
     </div>
     <div class="view">
@@ -37,7 +42,7 @@
                       <template v-if="logs.length">
                         <div>
                           <b-list-group>
-                            <b-list-group-item :variant="log.level" v-for="(log, index) in logs" :key="index">
+                            <b-list-group-item :variant="logType(log.level)" v-for="(log, index) in logs" :key="index">
                               {{ log.time +  "  " + log.msg }}
                             </b-list-group-item>
                           </b-list-group>
@@ -56,15 +61,22 @@
         </b-row>
       </b-container>
     </div>
+    <b-modal id="modal-1" title="版本信息" ok-only :ok-title="'确定'" :centered="true" :size="'lg'">
+      <b-table :items="items" :fields="fields" outlined bordered></b-table>
+    </b-modal>
   </div>
 </template>
 
 <script>
 import State from './State.vue'
 import System from './System'
+import { mapActions } from 'vuex'
+import toast from '@/mixins/toast'
+import { getVision } from '@/libs/https'
 
 export default {
   name: 'app',
+  mixins:[toast],
   data(){
     return{
       logFollow: true,
@@ -72,27 +84,55 @@ export default {
       socket: null,
       stateVal:{},
       serverConn: true,
+      msgEvent: null,
       logs:[],
+      LOGO: window['LOGO'] || null,
+      show: true,
+      items: [],
+      fields: [
+        {key:'log', label: '日志'},
+        {key:'git_hash', label: 'hash'},
+        {key:'tag', label: '标签'},
+        {key:'created_at', label: '创建时间'},
+      ]
     }
   },
   components: {
     State,System
   },
   filters:{
-    logType(type) {
-      return {
-        Debug: 'primary',
-        Info: 'info',
-        Warn: 'warning',
-        Error: 'danger',
-        Fatal: 'dark'
-      }[type]
+    // logType(type) {
+    //   return {
+    //     Debug: 'primary',
+    //     Info: 'info',
+    //     Warn: 'warning',
+    //     Error: 'danger',
+    //     Fatal: 'dark'
+    //   }[type]
+    // }
+  },
+  computed: {
+    widthLogo() {
+      return this.LOGO && this.LOGO !== ''
     }
   },
   mounted(){
     this.createSocket()
+    this.GetSystem()
+    .then(res => {})
+    .catch(error => {
+        this.toast(error,'danger')
+    })
   },
   methods:{
+    logType(type) {
+     if(type == 'error'){
+       return 'danger'
+     }else{
+       return type
+     }
+    },
+    ...mapActions(['GetSystem']),
     clearLogs(){
       this.logs=[]
     },
@@ -106,7 +146,7 @@ export default {
           wsUrl = scheme + '://' + hostname + wsPort + '/msg';
         }else{
             let { protocol } = document.location;
-            let hostname = '192.168.0.200', port = '13001';
+            let hostname = '192.168.0.251', port = '8800';
             let scheme = protocol === 'https:' ? 'wss' : 'ws';
             let wsPort = port ? (':' + port) : '';
             wsUrl = scheme + '://' + hostname + wsPort + '/msg';
@@ -131,10 +171,10 @@ export default {
       this.socketState = 'DISCONNECTED';
     },
     onmessage(e) {
-        this.getData(e)
+      this.getData(e)
     },
     getData(e){
-        let msg=JSON.parse(e.data)
+      let msg=JSON.parse(e.data)
       if(msg.type=='sys_state') {
           this.stateVal=msg.data
         } else {
@@ -152,6 +192,16 @@ export default {
           this.$refs.scroller.scrollTop = this.$refs.scroller.scrollHeight;
         })
       }
+    },
+    GetVision(){
+      this.show = true
+      getVision().then(res =>{
+        this.show = false
+        this.items = res
+      },error => {
+         this.show = false
+        this.toast(error,'danger')
+      })
     }
   }
 }
