@@ -1,51 +1,57 @@
 <template>
     <b-card no-body class="h100pct">
-        <b-card-header class="header-control" header-tag="header" role="tab">
-            <span v-b-toggle.accordion-3>{{data == null ? 32 : data.branch_num}} 路继电器</span>
-            <div class="tool">
-                <b-button size="sm" @click="runRelay" :disabled="disableState.runRelay" variant="primary">运行继电器</b-button>
-            </div>
-            <div class="tool">
-                <b-button size="sm" @click="openRelay" :disabled="disableState.openRelay" variant="primary">吸合继电器</b-button>
-            </div>
-            <div class="tool">
-            <b-button size="sm" @click="resetRelay" :disabled="disableState.resetRelay" variant="primary">重置继电器</b-button>
-            </div>
-            <div class="tool">
-                <b-button size="sm" @click="closeRelay" :disabled="disableState.closeRelay" variant="primary">断开继电器</b-button>
-            </div>
+        <b-card-header header-tag="header" role="tab">
+            <b-row>
+                <b-col lg="3" md="12" sm="12"> 
+                    <span v-b-toggle.accordion-3>{{data == null ? 32 : data.branch_num}} 路继电器</span>
+                </b-col>
+                 <b-col lg="9" md="12" sm="12">  
+                    <div class="tool">
+                        <b-button size="sm"  class="ml-2" @click="flipRelay" variant="primary">翻转全部</b-button>
+                        <b-button size="sm"  class="ml-2" @click="closeRelay" :disabled="disableState.closeRelay" variant="primary">断开全部</b-button>
+                        <b-button size="sm"  class="ml-2" @click="openRelay" :disabled="disableState.openRelay" variant="primary">吸合全部</b-button>
+                        <b-button size="sm" @click="runRelay" :disabled="disableState.runRelay" variant="primary">运行</b-button>
+                    </div>
+                </b-col>
+            </b-row>
         </b-card-header>
         <b-collapse id="accordion-3" visible accordion="log" role="tabpanel">
             <b-card-body class="scroller pR" >
                 <Loading v-if="loading.state"></Loading>
                 <template v-else>
-                    <div v-for="index in Math.ceil(data.branch_num/2)" :key="index" >
+                    <div>
                         <b-row>
-                            <b-col class="colWrap">
+                            <b-col class="colWrap" v-for="index in data.branch_num" :key="index" lg="6" md="12" sm="12"> 
                                 <div>
-                                    <span class="w6em">第{{index}}路:</span><span class="fB">{{value.branches == null ? '未连接': (value.branches[index - 1].status) ? "吸合" : "断开"}}&nbsp;&nbsp;&nbsp;{{value.branches == null ? '': value.branches[index - 1].left_time/1000000000}}</span>秒
+                                    <span class="w6em">第{{index}}路:</span><span class="fB">{{value.status == null ? '未连接': (value.status[index - 1]) ? "吸合" : "断开"}}</span>
                                 </div>
                                 <div class="tool">
-                                    <div v-if="value.branches">
-                                        <b-button size="sm" @click="openRelaySpecial(index-1)" v-if="value.branches[index - 1].status" variant="success">断开继电器</b-button>
-                                        <b-button size="sm" @click="openRelaySpecial(index-1)" v-else >吸合继电器</b-button>
+                                    <div>
+                                        <b-button size="sm" @click="openRelaySpecial(index-1)" v-if="value.status[index - 1]" variant="success">断开</b-button>
+                                        <b-button size="sm" @click="openRelaySpecial(index-1)" v-else >吸合</b-button>
+                                        <b-button size="sm" class="ml-2" @click="offPoint(index)" variant="warning" style="min-width:46px">
+                                            <span>{{secondList[index-1].second? `${secondList[index-1].second}秒`: '点断'}}</span>
+                                        </b-button>
                                     </div>
                                 </div>
                             </b-col>
-                            
+<!--                             
                             <b-col >
                                 <div v-if="index+Math.ceil(data.branch_num/2)-1 < data.branch_num" class="colWrap">
                                     <div>
-                                        <span class="w6em">第{{index + Math.ceil(data.branch_num/2)}}路:</span><span class="fB">{{value.branches == null ? '未连接': value.branches[index + Math.ceil(data.branch_num/2)-1].status ? "吸合" : "断开"}}&nbsp;&nbsp;&nbsp;{{value.branches == null ? '': value.branches[index + Math.ceil(data.branch_num/2)-1].left_time/1000000000}}</span>秒
+                                        <span class="w6em">第{{index + Math.ceil(data.branch_num/2)}}路:</span><span class="fB">{{value.status == null ? '未连接': value.status[index + Math.ceil(data.branch_num/2)-1] ? "吸合" : "断开"}}</span>
                                     </div>
                                     <div class="tool">
-                                        <div v-if="value.branches">
-                                            <b-button size="sm" @click="openRelaySpecial(index + Math.ceil(data.branch_num/2)-1)" v-if="value.branches[index + Math.ceil(data.branch_num/2)-1].status" variant="success">断开继电器</b-button>
-                                            <b-button size="sm" @click="openRelaySpecial(index + Math.ceil(data.branch_num/2)-1)" v-else>吸合继电器</b-button>
+                                        <div>
+                                            <b-button size="sm" @click="openRelaySpecial(index + Math.ceil(data.branch_num/2)-1)" v-if="value.status[index + Math.ceil(data.branch_num/2)-1]" variant="success">断开</b-button>
+                                            <b-button size="sm" @click="openRelaySpecial(index + Math.ceil(data.branch_num/2)-1)" v-else>吸合</b-button>
+                                            <b-button size="sm" class="ml-2" @click="offPoint(index + Math.ceil(data.branch_num/2 ))" variant="warning" style="width:46px">
+                                                <span>{{secondList[index + Math.ceil(data.branch_num/2 )-1].second? `${secondList[index + Math.ceil(data.branch_num/2 )-1].second}秒`: '点断'}}</span>
+                                            </b-button>
                                         </div>
                                     </div>
                                 </div>
-                            </b-col>
+                            </b-col> -->
                         </b-row>
                     </div>
                     <b-col><span class="w6em">运行时间：</span><span class="fB">{{value.running_time | time}}</span></b-col>
@@ -54,12 +60,22 @@
             </b-card-body>
 
         </b-collapse>
+        <b-modal id="my-modal" title="点断" hide-footer>
+            <div style="padding: 0 30px;">
+               <!-- <b-form-input type="number" v-model="second" placeholder="输入秒（<60s）"></b-form-input> -->
+                <b-form-input id="range-1" v-model="second" type="range" min="0" max="60"></b-form-input>
+                <div class="mt-2">点断秒数：{{ second }}秒</div>
+            </div>
+            <div style="text-align: right">
+                <b-button class="mt-2" variant="primary" @click="comfirm">确定</b-button>
+            </div>
+        </b-modal>
     </b-card>
 
 </template>
 <script>
 
-import { resetRelay, runRelay, openRelay, openRelaySpecial, closeRelaySpecial, exitRelay, closeRelay, heartBeat} from '@/libs/https'
+import { flipRelay, resetRelay, runRelay, openRelay, openRelaySpecial, closeRelaySpecial, exitRelay, closeRelay, heartBeat, onPoint, offPoint} from '@/libs/https'
 import Loading from '@/components/Loading'
 import toast from '@/mixins/toast'
 import { mapActions, mapState, mapMutations } from 'vuex'
@@ -72,6 +88,8 @@ export default {
     data(){
         return{
             socketState: '',
+            second: '5',
+            onOffPoint: 0,
             socket: null,
             data:{
                 branch_num:0
@@ -81,7 +99,8 @@ export default {
                 openRelay: false,
                 resetRelay: false,
                 closeRelay:false
-            }
+            },
+            secondList:[]
         }
     },
     filters:{
@@ -96,16 +115,22 @@ export default {
     },
     watch:{
         value(val, oldval){
-            if(this.data.branch_num != val.branches.length){
-               this.GetSystem('state').then(res => {})
-               .catch(error => {
-                    this.toast(error,'danger')
-               })
+            if(this.data.branch_num != val.status.length){
+                this.GetSystem('state')
             }
         },
         sysData(val){
-            let { branch_num } = this.sysData
-            this.data.branch_num = branch_num
+            let { branch_length } = val
+            if(branch_length>0){
+                this.data.branch_num = branch_length
+                this.secondList = new Array(branch_length)
+                for(let i = 0; i< branch_length; i++){
+                    this.secondList[i] = {
+                        timer: null,
+                        second: 0
+                    }
+                }
+            }
         }
     },
     computed: mapState([ 'loading', 'sysData' ]),
@@ -114,6 +139,15 @@ export default {
     methods:{
         ...mapActions(['GetSystem']),
         ...mapMutations(['setLoading']),
+        resetSecondList(){
+            this.secondList.forEach(el=>{
+                clearInterval(el.timer)
+                el.timer = null
+                el.second = 0
+            })
+            let data = [...this.secondList]
+            this.$set(this, 'secondList', data)
+        },
         resetRelay(){
             this.disableState.resetRelay = true
             resetRelay().then(res=>{
@@ -123,6 +157,7 @@ export default {
                     this.toast('重置成功','success')
                 }
                 this.disableState.resetRelay = false
+                this.resetSecondList()
             },error=>{
                     this.toast(error,'danger')
                     this.disableState.resetRelay = false
@@ -137,6 +172,7 @@ export default {
                     this.toast('运行成功','success')
                 }
                 this.disableState.runRelay = false
+                    this.resetSecondList()
             },error=>{
                 this.toast('网络连接异常' + error,'danger')
                 this.disableState.runRelay = false
@@ -151,19 +187,22 @@ export default {
                     this.toast('打开成功','success')
                 }
                 this.disableState.openRelay = false
+                    this.resetSecondList()
             },error=>{
                 this.toast(error,'danger')
                 this.disableState.openRelay = false   
             })
         },
-        openRelaySpecial(index){
-           if(this.value.branches[index].status){
+        openRelaySpecial(index, callback){
+           if(this.value.status[index]){
                 closeRelaySpecial(index).then(res=>{
                    if(res){
                        this.toast('网络连接异常','danger')
                    }else{
                        this.toast('打开成功','success')
+                       if(callback)callback()
                    }
+                    this.resetSecondList()
                },error=>{
                     this.toast(error,'danger')
                })
@@ -173,6 +212,7 @@ export default {
                        this.toast('网络连接异常','danger')
                    }else{
                        this.toast('打开成功','success')
+                       if(callback)callback()
                    }
                },error=>{
                    this.toast(error,'danger')
@@ -186,6 +226,7 @@ export default {
                 }else{
                     this.toast('编辑成功','success')
                 }
+                this.resetSecondList()
             },error=>{
                 this.toast(error,'danger')
             })
@@ -199,6 +240,7 @@ export default {
                     this.toast('关闭成功','success')
                 }
                 this.disableState.closeRelay = false
+                this.resetSecondList()
             },error=>{
                 this.disableState.closeRelay = false
                 this.toast(error,'danger')
@@ -215,10 +257,67 @@ export default {
                 this.toast(error,'danger')
             })
         },
+        flipRelay(){
+            let data = []
+            this.value.status.forEach((el, index )=>{
+                data.push(index)
+            })
+            flipRelay(data).then(res =>{
+                this.resetSecondList()
+            }).catch(error => {
+                 this.toast(error,'danger')
+            })
+        },
+        offPoint(index){
+            if(this.secondList[index-1].timer) return
+            this.onOffPoint = index-1
+            this.second = 5
+            this.$bvModal.show('my-modal')
+        },
+        comfirm(){
+            if(this.value.status[this.onOffPoint]){
+                offPoint({branch: this.onOffPoint, time: this.second*1000}).then(res=>{
+                    this.$set(this.secondList[this.onOffPoint], 'second', this.second )  
+                    this.secondList[this.onOffPoint].second = this.second
+                   this.countDown(this.onOffPoint)
+                },error => {
+                    this.toast(error,'danger')
+                })
+            }else{
+                onPoint({branch: this.onOffPoint, time: this.second*1000}).then(res=>{
+                    this.secondList[this.onOffPoint].second = this.second
+                     this.countDown(this.onOffPoint)
+                },error => {
+                    this.toast(error,'danger')
+                })
+            }
+            this.$bvModal.hide('my-modal')
+        },
+        countDown(index){
+            this.secondList[index].timer = setInterval(() =>{
+                if( this.secondList[index].second === 1){
+                    clearInterval(this.secondList[index].timer)
+                    this.secondList[index].second = 0
+                    this.secondList[index].timer = null
+                      //关闭定时器
+                }else{
+                    let data = [...this.secondList]
+                    data[index].second = this.secondList[index].second -1
+                    this.$set(this, 'secondList', data)
+                }
+            },1000)
+        },
+        countNumber(index){
+            this.secondList[index].second--
+        }
+
     }
 }
 </script>
 <style scoped>
+.tool{
+    flex-direction: row-reverse;
+}
 .w6em{
     width: 6em;
     display: inline-block

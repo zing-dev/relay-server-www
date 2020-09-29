@@ -11,3 +11,19 @@ body,html{height: 100%;}
 .fB{font-weight: bold}
 .btn:focus, .btn.focus{ box-shadow: none }
 .pR{position: relative;}
+.icon.confirm{
+    background: url('../../public/img/confirm.png');
+    background-size: 100%;
+}
+.icon.del{
+    background: url('../../public/img/del.png');
+    background-size: 100%;
+}
+.icon.confirm.disable{
+    background: url('../../public/img/confirm_disable.png');
+    background-size: 100%;
+}
+.icon.add{
+    background: url('../../public/img/add.png');
+    background-size: 100%;
+}   

@@ -5,7 +5,6 @@
         <b-navbar-nav>
           <img :src="'./' + LOGO" style="height:30px;margin-right:15px"  v-if="widthLogo"/>
           <b-navbar-brand href="#">继电器模块</b-navbar-brand>
-          <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
          </b-navbar-nav>
         <b-navbar-nav class="ml-auto">
             <b-button size="sm" class="my-2 my-sm-0" v-b-modal.modal-1 @click="GetVision">版本信息</b-button>
@@ -143,13 +142,13 @@ export default {
           let { protocol,hostname, port } = document.location;
           let scheme = protocol === 'https:' ? 'wss' : 'ws';
           let wsPort = port ? (':' + port) : '';
-          wsUrl = scheme + '://' + hostname + wsPort + '/msg';
+          wsUrl = scheme + '://' + hostname + wsPort + '/ws';
         }else{
             let { protocol } = document.location;
-            let hostname = '192.168.0.251', port = '8800';
+            let hostname = '192.168.0.251', port = '9009';
             let scheme = protocol === 'https:' ? 'wss' : 'ws';
             let wsPort = port ? (':' + port) : '';
-            wsUrl = scheme + '://' + hostname + wsPort + '/msg';
+            wsUrl = scheme + '://' + hostname + wsPort + '/ws';
         }
         this.socket = new WebSocket(wsUrl);
         [   'onopen',
@@ -175,9 +174,9 @@ export default {
     },
     getData(e){
       let msg=JSON.parse(e.data)
-      if(msg.type=='sys_state') {
+      if(msg.type=='status') {
           this.stateVal=msg.data
-        } else {
+        } else if(msg.type == 'log'){
           if(this.logs.length>100){
             this.logs.shift()
           }

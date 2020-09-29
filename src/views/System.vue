@@ -11,27 +11,27 @@
                <Loading v-if="loading.system"></Loading>
                 <b-form>
                     <div class="inputWrap">
+                        <div class="">
+                            <label for="inline-form-input-name">web端口 :</label>
+                        </div>
+                        <div>
+                            <b-form-input type="number" v-model="data.port" @change="update" :disabled="loading.system"></b-form-input>
+                        </div>
+                    </div>
+                    <div class="inputWrap">
+                        <div>
+                            <label for="inline-form-input-name">继电器slave_id :</label>
+                        </div>
+                        <div>
+                            <b-form-input type="number" v-model="data.slave_id" @change="update" :disabled="loading.system"></b-form-input>
+                        </div>
+                    </div>
+                    <div class="inputWrap">
                         <div>
                             <label for="inline-form-input-name">继电器串口:</label>
                         </div>
                         <div>
-                            <b-form-input type="number" v-model="data.relay_port" @change="update" :disabled="loading.system"></b-form-input>
-                        </div>
-                    </div>
-                    <div class="inputWrap">
-                        <div>
-                            <label for="inline-form-input-name">保存日志的时间(天):</label>
-                        </div>
-                        <div>
-                            <b-form-input type="number" v-model="data.save_log_time" @change="update" :disabled="loading.system"></b-form-input>
-                        </div>
-                    </div>
-                    <div class="inputWrap">
-                        <div>
-                           <label for="inline-form-input-name">自动重置继电器(秒):</label>
-                        </div>
-                        <div>
-                            <b-form-input type="number" v-model="data.auto_reset_time" @change="update" :disabled="loading.system"></b-form-input>
+                            <b-form-input v-model="data.address" @change="update" :disabled="loading.system"></b-form-input>
                         </div>
                     </div>
                     <div class="inputWrap">
@@ -39,17 +39,28 @@
                             <label for="inline-form-input-name">继电器路数:</label>
                         </div>
                         <div>
-                            <b-form-input type="number" v-model="data.branch_num" @change="update" :disabled="loading.system"></b-form-input>
+                            <b-form-input type="number" v-model="data.branch_length" @change="update" :disabled="loading.system"></b-form-input>
                         </div>
                     </div>
-                    <!-- <div class="inputWrap">
-                        <div>
-                            <label for="inline-form-input-name">MQTT地址:</label>
+                    <div class="inputWrap">
+                        <div class="m-label">
+                            <label for="inline-form-input-name">白名单:</label>
                         </div>
-                        <div>
-                            <b-form-input v-model="data.mq_address" @change="update"></b-form-input>
+                        <div >
+                            <template v-for="(item, index) in data.white_list">
+                                <div :key = "index" v-if="data.white_list.length " style="display:flex;align-items:center;  margin-bottom: 10px">
+                                    <div>
+                                        <b-form-input v-model="data.white_list[index]" :disabled="loading.system" ></b-form-input>
+                                    </div>
+                                    <div class="iconWrap">
+                                        <i class="icon confirm" :class="{disable: !item}" @click="comfirm(item)" v-if="item !='::1' && item !== '127.0.0.1'"></i>
+                                        <i class="icon del" @click="del(index)" v-if=" data.white_list.length >1 && item !='::1' && item !== '127.0.0.1'"></i>
+                                    </div>
+                                </div>
+                            </template>
                         </div>
-                    </div> -->
+                        <div style="padding-left:20px"><i class="icon add" @click="add"></i></div>
+                    </div>
                 </b-form>
             </b-card-body>
         </b-collapse>
@@ -68,19 +79,23 @@ export default {
     data(){
         return{
             data:{
-                relay_port:0,
-                save_log_time:0,
-                auto_reset_time:0,
-                branch_num:0,
-                mq_address:0
+                port:0,
+                slave_id:0,
+                address:0,
+                branch_length: 0,
+                white_list:['']
             },
         }
     },
      watch:{
         sysData(val){
-            let {branch_num,relay_port,save_log_time,mq_address,auto_reset_time} = this.sysData
-            this.data={branch_num,relay_port,save_log_time,mq_address,auto_reset_time}
+            // let {port,slave_id,address,branch_length,white_list} = this.sysData
+            let { white_list } = val
+            this.data = {...val}
+            this.data.white_list = white_list.length?white_list: ['']
         }
+    },
+    mounted(){
     },
     computed: mapState([ 'loading', 'sysData' ]),
     methods:{
@@ -94,14 +109,13 @@ export default {
         },
         update(e){
             this.setLoading({system: true})
-            let {branch_num,relay_port,save_log_time,auto_reset_time} = this.data
+            let {port,slave_id,address,branch_length,white_list} = this.data
             let data={
-                relay_port:parseFloat(relay_port),
-                save_log_time:parseFloat(save_log_time),
-                auto_reset_time:parseFloat(auto_reset_time),
-                branch_num:parseFloat(branch_num),
+                port: parseFloat(port),
+                slave_id: parseFloat(slave_id),
+                branch_length: parseFloat(branch_length),
+                address,white_list
             }
-            // await this.SetSystem(data)
             setSystem(JSON.stringify(data)).then(res=>{
                  this.setLoading({system: false})
                 if(res){
@@ -114,6 +128,22 @@ export default {
                 this.toast(error,'danger')
             })
         },
+        add(){
+            this.data.white_list.push('')
+        },
+        del(index){
+            if(this.data.white_list[index]){
+                this.data.white_list.splice(index,1)
+                this.update()
+            }else{
+                this.data.white_list.splice(index,1)
+            }
+        },
+        comfirm(data){
+            if(data){
+                this.update()
+            }
+        }
     },
 }
 </script>
@@ -125,16 +155,25 @@ export default {
 }
 .inputWrap>div{
     display: table-cell;
+}
+.inputWrap>div.middle{
     vertical-align: middle
 }
 .inputWrap>div:first-child{
-    width: 12em;
+    width: 8em;
 }
 .inputWrap>div label{
     margin-bottom: 0
 }
 .inputWrap>div input{
-    width: 15em
+    max-width: 17em
+}
+.icon{
+     display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    cursor: pointer;
 }
 </style>
 

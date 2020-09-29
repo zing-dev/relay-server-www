@@ -25,13 +25,12 @@ export default new Vuex.Store({
     GetSystem ({ commit }, state){
       const defaultLoading = { system: false, stateP: false }
       if(state){
-        let loading = JSON.parse(JSON.stringify(defaultLoading))
+        let loading = { ...defaultLoading }
         loading[state] = true
         commit('setLoading', loading)
       }else{
         commit('setLoading', {system: true, stateP: true})
       }
-      
       return new Promise((resolve, reject)=>{
         getSystem().then( res =>{
           commit('setLoading', defaultLoading)
@@ -41,7 +40,8 @@ export default new Vuex.Store({
             commit('SETSYSTEM', res)
             resolve()
           }
-        },error => {
+        }).catch(error => {
+          console.log(error)
           commit('setLoading',defaultLoading)
           reject(error)
         })
