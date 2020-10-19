@@ -23,7 +23,13 @@
                         <b-row>
                             <b-col class="colWrap" v-for="index in data.branch_num" :key="index" lg="6" md="12" sm="12"> 
                                 <div>
-                                    <span class="w6em">第{{index}}路:</span><span class="fB">{{value.status == null ? '未连接': (value.status[index - 1]) ? "吸合" : "断开"}}</span>
+                                    <span class="w6em">第{{index}}路:</span>
+                                    <span class="fB" v-if="value.status[index - 1]">
+                                        <Icon :name ="'link'" style="color: #28a745;"></Icon>
+                                    </span>
+                                    <span class="fB" v-else>
+                                        <Icon :name ="'unlink'" style="color: red;"></Icon>
+                                    </span>
                                 </div>
                                 <div class="tool">
                                     <div>

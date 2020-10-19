@@ -11,7 +11,7 @@ body,html{height: 100%;}
 .fB{font-weight: bold}
 .btn:focus, .btn.focus{ box-shadow: none }
 .pR{position: relative;}
-.icon.confirm{
+/* .icon.confirm{
     background: url('../../public/img/confirm.png');
     background-size: 100%;
 }
@@ -26,4 +26,4 @@ body,html{height: 100%;}
 .icon.add{
     background: url('../../public/img/add.png');
     background-size: 100%;
-}   
+}    */

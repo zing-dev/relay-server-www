@@ -90,7 +90,7 @@ export default {
       items: [],
       fields: [
         {key:'log', label: '日志'},
-        {key:'git_hash', label: 'hash'},
+        // {key:'git_hash', label: 'hash'},
         {key:'tag', label: '标签'},
         {key:'created_at', label: '创建时间'},
       ]

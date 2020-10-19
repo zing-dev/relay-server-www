@@ -53,13 +53,22 @@
                                         <b-form-input v-model="data.white_list[index]" :disabled="loading.system" ></b-form-input>
                                     </div>
                                     <div class="iconWrap">
-                                        <i class="icon confirm" :class="{disable: !item}" @click="comfirm(item)" v-if="item !='::1' && item !== '127.0.0.1'"></i>
-                                        <i class="icon del" @click="del(index)" v-if=" data.white_list.length >1 && item !='::1' && item !== '127.0.0.1'"></i>
+                                        <div>
+                                            <Icon :name ="'confirm'" class="icon confirm" :class="{disable: !item}" @click="comfirm(item)" v-if="item !='::1' && item !== '127.0.0.1'"></Icon>
+                                        </div>
+                                        <div>
+                                            <Icon :name ="'del'" class="icon del"  @click="del(index)" v-if=" data.white_list.length >1 && item !='::1' && item !== '127.0.0.1'"></Icon>
+                                        </div>
                                     </div>
                                 </div>
                             </template>
                         </div>
-                        <div style="padding-left:20px"><i class="icon add" @click="add"></i></div>
+                        <div style="padding-left:20px">
+                            <div  @click="add">
+                                <Icon name="add"></Icon>
+                            </div>
+                            <!-- <i class="icon add" @click="add"></i> -->
+                        </div>
                     </div>
                 </b-form>
             </b-card-body>
@@ -169,11 +178,19 @@ export default {
     max-width: 17em
 }
 .icon{
-     display: inline-block;
-    width: 20px;
-    height: 20px;
     margin-left: 5px;
-    cursor: pointer;
+}
+.icon.confirm{
+    color: #007bff;
+}
+.icon.confirm.disable{
+    color: #8a8a8a;
+}
+.icon.del{
+    color: red;
+}
+.iconWrap{
+    display: flex;
 }
 </style>
 
