@@ -145,7 +145,7 @@ export default {
           wsUrl = scheme + '://' + hostname + wsPort + '/ws';
         }else{
             let { protocol } = document.location;
-            let hostname = '192.168.0.251', port = '9009';
+            let hostname = '192.168.0.251', port = '8800';
             let scheme = protocol === 'https:' ? 'wss' : 'ws';
             let wsPort = port ? (':' + port) : '';
             wsUrl = scheme + '://' + hostname + wsPort + '/ws';

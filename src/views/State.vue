@@ -17,8 +17,8 @@
         </b-card-header>
         <b-collapse id="accordion-3" visible accordion="log" role="tabpanel">
             <b-card-body class="scroller pR" >
-                <Loading v-if="loading.state"></Loading>
-                <template v-else>
+                <Loading v-if="loading.state || JSON.stringify(this.value) == '{}'"></Loading>
+                <template v-else-if="data.branch_num >0">
                     <div>
                         <b-row>
                             <b-col class="colWrap" v-for="index in data.branch_num" :key="index" lg="6" md="12" sm="12"> 
@@ -41,23 +41,6 @@
                                     </div>
                                 </div>
                             </b-col>
-<!--                             
-                            <b-col >
-                                <div v-if="index+Math.ceil(data.branch_num/2)-1 < data.branch_num" class="colWrap">
-                                    <div>
-                                        <span class="w6em">第{{index + Math.ceil(data.branch_num/2)}}路:</span><span class="fB">{{value.status == null ? '未连接': value.status[index + Math.ceil(data.branch_num/2)-1] ? "吸合" : "断开"}}</span>
-                                    </div>
-                                    <div class="tool">
-                                        <div>
-                                            <b-button size="sm" @click="openRelaySpecial(index + Math.ceil(data.branch_num/2)-1)" v-if="value.status[index + Math.ceil(data.branch_num/2)-1]" variant="success">断开</b-button>
-                                            <b-button size="sm" @click="openRelaySpecial(index + Math.ceil(data.branch_num/2)-1)" v-else>吸合</b-button>
-                                            <b-button size="sm" class="ml-2" @click="offPoint(index + Math.ceil(data.branch_num/2 ))" variant="warning" style="width:46px">
-                                                <span>{{secondList[index + Math.ceil(data.branch_num/2 )-1].second? `${secondList[index + Math.ceil(data.branch_num/2 )-1].second}秒`: '点断'}}</span>
-                                            </b-button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </b-col> -->
                         </b-row>
                     </div>
                     <b-col><span class="w6em">运行时间：</span><span class="fB">{{value.running_time | time}}</span></b-col>
@@ -98,7 +81,7 @@ export default {
             onOffPoint: 0,
             socket: null,
             data:{
-                branch_num:0
+                branch_num: 0
             },
             disableState:{
                 runRelay: false,
@@ -140,6 +123,8 @@ export default {
         }
     },
     computed: mapState([ 'loading', 'sysData' ]),
+    created(){
+    },
     mounted(){
     },
     methods:{
