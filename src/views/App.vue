@@ -3,11 +3,12 @@
     <div>
       <b-navbar toggleable="lg" type="dark">
         <b-navbar-nav>
-          <img :src="'./' + LOGO" style="height:30px;margin-right:15px"  v-if="widthLogo"/>
+          <img :src="'./' + LOGO" style="height:30px;margin-right:15px" v-if="widthLogo"/>
           <b-navbar-brand href="#">继电器模块</b-navbar-brand>
-         </b-navbar-nav>
+        </b-navbar-nav>
         <b-navbar-nav class="ml-auto">
-            <b-button size="sm" class="my-2 my-sm-0" v-b-modal.modal-1 @click="GetVision">版本信息</b-button>
+          <b-button size="sm" variant="primary" class="my-2 my-sm-0" v-b-modal.modal-1 @click="version">版本信息
+          </b-button>
         </b-navbar-nav>
       </b-navbar>
     </div>
@@ -15,23 +16,24 @@
       <b-container class="home" fluid>
         <b-row class="h100pct">
           <b-col>
-             <div role="tablist" class="mb-4">
-                <State :value="stateVal" :serverConn='serverConn'></State>
+            <div role="tablist" class="mb-4">
+              <State :value="stateVal" :serverConn='serverConn'></State>
             </div>
             <div role="tablist">
-                <System></System>
+              <System></System>
             </div>
           </b-col>
           <b-col>
-             <div role="tablist" class="h100pct">
+            <div role="tablist" class="h100pct">
               <b-card no-body class="h100pct">
                 <b-card-header class="header-control" header-tag="header" role="tab">
                   <span v-b-toggle.accordion-3>日志</span>
                   <div class="tool">
                     <b-form-checkbox
-                    :checked="logFollow"
-                    @change="followLog"
-                    >滚动条跟随</b-form-checkbox>
+                        :checked="logFollow"
+                        @change="followLog"
+                    >滚动条跟随
+                    </b-form-checkbox>
                     <b-button class="ml-3" size="sm" @click="clearLogs">清空日志</b-button>
                   </div>
                 </b-card-header>
@@ -42,7 +44,7 @@
                         <div>
                           <b-list-group>
                             <b-list-group-item :variant="logType(log.level)" v-for="(log, index) in logs" :key="index">
-                              {{ log.time +  "  " + log.msg }}
+                              {{ log.time + "  " + log.msg }}
                             </b-list-group-item>
                           </b-list-group>
                         </div>
@@ -51,7 +53,6 @@
                         <b-list-group-item>暂无记录</b-list-group-item>
                       </b-list-group>
                     </div>
-                    
                   </b-card-body>
                 </b-collapse>
               </b-card>
@@ -69,102 +70,93 @@
 <script>
 import State from './State.vue'
 import System from './System'
-import { mapActions } from 'vuex'
+import {mapActions} from 'vuex'
 import toast from '@/mixins/toast'
-import { getVision } from '@/libs/https'
+import {api} from '@/libs/https'
 
 export default {
   name: 'app',
-  mixins:[toast],
-  data(){
-    return{
+  mixins: [toast],
+  data() {
+    return {
       logFollow: true,
-      socketState:'',
+      socketState: '',
       socket: null,
-      stateVal:{},
+      stateVal: {},
       serverConn: true,
       msgEvent: null,
-      logs:[],
+      logs: [],
       LOGO: window['LOGO'] || null,
       show: true,
       items: [],
       fields: [
-        {key:'log', label: '日志'},
-        // {key:'git_hash', label: 'hash'},
-        {key:'tag', label: '标签'},
-        {key:'created_at', label: '创建时间'},
+        {key: 'log', label: '日志'},
+        {key: 'tag', label: '标签'},
+        {key: 'created_at', label: '创建时间'},
       ]
     }
   },
   components: {
-    State,System
+    State, System
   },
-  filters:{
-    // logType(type) {
-    //   return {
-    //     Debug: 'primary',
-    //     Info: 'info',
-    //     Warn: 'warning',
-    //     Error: 'danger',
-    //     Fatal: 'dark'
-    //   }[type]
-    // }
-  },
+  filters: {},
   computed: {
     widthLogo() {
       return this.LOGO && this.LOGO !== ''
     }
   },
-  mounted(){
+  mounted() {
     this.createSocket()
     this.GetSystem()
-    .then(res => {})
-    .catch(error => {
-        this.toast(error,'danger')
-    })
+        .then(() => {
+        })
+        .catch(error => {
+          this.toast(error, 'danger')
+        })
   },
-  methods:{
+  methods: {
     logType(type) {
-     if(type == 'error'){
-       return 'danger'
-     }else{
-       return type
-     }
+      if (type === 'error') {
+        return 'danger'
+      } else {
+        return type
+      }
     },
     ...mapActions(['GetSystem']),
-    clearLogs(){
-      this.logs=[]
+    clearLogs() {
+      this.logs = []
     },
     createSocket() {
-        this.socketState = 'CONNECTING';
-        let wsUrl
-        if(process.env.NODE_ENV=='production'){
-          let { protocol,hostname, port } = document.location;
-          let scheme = protocol === 'https:' ? 'wss' : 'ws';
-          let wsPort = port ? (':' + port) : '';
-          wsUrl = scheme + '://' + hostname + wsPort + '/ws';
-        }else{
-            let { protocol } = document.location;
-            let hostname = '192.168.0.251', port = '8800';
-            let scheme = protocol === 'https:' ? 'wss' : 'ws';
-            let wsPort = port ? (':' + port) : '';
-            wsUrl = scheme + '://' + hostname + wsPort + '/ws';
-        }
-        this.socket = new WebSocket(wsUrl);
-        [   'onopen',
-            'onclose',
-            'onmessage',
-            'onerror'
-        ].forEach(event => {
-            this.socket[event] = this[event]
-        })
+      this.socketState = 'CONNECTING';
+      let wsUrl
+      if (process.env.NODE_ENV === 'production') {
+        let {protocol, hostname, port} = document.location;
+        let scheme = protocol === 'https:' ? 'wss' : 'ws';
+        let wsPort = port ? (':' + port) : '';
+        wsUrl = scheme + '://' + hostname + wsPort + '/ws';
+      } else {
+        let {protocol} = document.location;
+        let hostname = '192.168.0.251', port = '8800';
+        let scheme = protocol === 'https:' ? 'wss' : 'ws';
+        let wsPort = port ? (':' + port) : '';
+        wsUrl = scheme + '://' + hostname + wsPort + '/ws';
+      }
+      this.socket = new WebSocket(wsUrl);
+      [
+        'onopen',
+        'onclose',
+        'onmessage',
+        'onerror'
+      ].forEach(event => {
+        this.socket[event] = this[event]
+      })
     },
     onopen() {
       this.socketState = 'CONNECTED';
     },
     onclose() {
       this.socketState = 'DISCONNECTED';
-      this.serverConn=false
+      this.serverConn = false
     },
     onerror() {
       this.socketState = 'DISCONNECTED';
@@ -172,41 +164,52 @@ export default {
     onmessage(e) {
       this.getData(e)
     },
-    getData(e){
-      let msg=JSON.parse(e.data)
-      if(msg.type=='status') {
-          this.stateVal=msg.data
-        } else if(msg.type == 'log'){
-          if(this.logs.length>100){
-            this.logs.shift()
-          }
-          this.logs.push(msg)
-          this.followLog(this.logFollow)
+    getData(e) {
+      let msg = JSON.parse(e.data)
+      if (msg.type === 'status') {
+        this.stateVal = msg.data
+      } else if (msg.type === 'log') {
+        if (this.logs.length > 100) {
+          this.logs.shift()
         }
+        this.logs.push(msg)
+        this.followLog(this.logFollow)
+      }
     },
-    followLog(e){
-      this.logFollow=e
-      if(this.logFollow){
-        this.$nextTick(()=>{
+    followLog(e) {
+      this.logFollow = e
+      if (this.logFollow) {
+        this.$nextTick(() => {
           this.$refs.scroller.scrollTop = this.$refs.scroller.scrollHeight;
         })
       }
     },
-    GetVision(){
+    version() {
       this.show = true
-      getVision().then(res =>{
+      api.version().then(res => {
+        if (res.status) {
+          this.show = false
+          this.items = res.data
+        } else {
+          this.toast("获取版本信息失败", 'danger')
+        }
+      }, error => {
         this.show = false
-        this.items = res
-      },error => {
-         this.show = false
-        this.toast(error,'danger')
+        this.toast(error, 'danger')
       })
     }
   }
 }
 </script>
 <style scoped>
-.logBody{ height: 660px; overflow: hidden;}
-.logBody>div{ overflow: auto; height:100%; }
+.logBody {
+  height: 660px;
+  overflow: hidden;
+}
+
+.logBody > div {
+  overflow: auto;
+  height: 100%;
+}
 </style>
 
