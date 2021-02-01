@@ -44,7 +44,7 @@
                     </b-button>
                     <b-button size="sm" @click="handle(index)" v-else>吸合</b-button>
                     <b-button size="sm" class="ml-2" @click="offPoint(index)" variant="warning" style="min-width:46px">
-                      <span>{{secondList[index - 1].second ? `${secondList[index - 1].second}秒` : '点断'}}</span>
+                      <span>{{secondList[index-1].second ? `${secondList[index-1].second}秒` : '点断'}}</span>
                     </b-button>
                   </div>
                 </div>
@@ -231,7 +231,6 @@ export default {
     flip() {
       let data = []
       this.value.status.forEach((el, index) => {
-        console.log(el)
         data.push(index+1)
       })
       api.relay.flip(data).then(() => {
@@ -248,7 +247,7 @@ export default {
     },
     confirm() {
       if (this.value.status[this.onOffPoint]) {
-        api.relay.offPoint({branch: this.onOffPoint, time: this.second * 1000}).then(() => {
+        api.relay.offPoint({branch: this.onOffPoint + 1, time: this.second * 1000}).then(() => {
           this.$set(this.secondList[this.onOffPoint], 'second', this.second)
           this.secondList[this.onOffPoint].second = this.second
           this.countDown(this.onOffPoint)
@@ -256,7 +255,7 @@ export default {
           this.toast(error, 'danger')
         })
       } else {
-        api.relay.onPoint({branch: this.onOffPoint, time: this.second * 1000}).then(() => {
+        api.relay.onPoint({branch: this.onOffPoint + 1, time: this.second * 1000}).then(() => {
           this.secondList[this.onOffPoint].second = this.second
           this.countDown(this.onOffPoint)
         }, error => {
