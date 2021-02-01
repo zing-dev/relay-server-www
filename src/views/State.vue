@@ -203,7 +203,7 @@ export default {
       })
     },
     handle(index, callback) {
-      if (this.value.status[index]) {
+      if (this.value.status[index-1]) {
         api.relay.off(index).then(res => {
           if (res.status) {
             this.toast('闭合成功', 'success')
