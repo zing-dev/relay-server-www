@@ -57,13 +57,11 @@
                     <b-form-input v-model="data.white_list[index]" :disabled="loading.system"></b-form-input>
                   </div>
                   <div class="iconWrap">
-                    <div>
-                      <Icon :name="'confirm'" class="icon confirm" :class="{disable: !item}" @click="confirm(item)"
-                            v-if="item !=='::1' && item !== '127.0.0.1'"></Icon>
+                    <div v-if="item !=='::1' && item !== '127.0.0.1'" @click="confirm(item)">
+                      <Icon :name="'confirm'" class="icon confirm" :class="{disable: !item}" ></Icon>
                     </div>
-                    <div>
-                      <Icon :name="'del'" class="icon del" @click="del(index)"
-                            v-if=" data.white_list.length >1 && item !=='::1' && item !== '127.0.0.1'"></Icon>
+                    <div  v-if=" data.white_list.length >1 && item !=='::1' && item !== '127.0.0.1'"  @click="del(index)">
+                      <Icon :name="'del'" class="icon del" ></Icon>
                     </div>
                   </div>
                 </div>
@@ -146,6 +144,7 @@ export default {
       this.data.white_list.push('')
     },
     del(index) {
+      console.log(index)
       if (this.data.white_list[index]) {
         this.data.white_list.splice(index, 1)
         this.update()
