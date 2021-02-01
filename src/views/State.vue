@@ -39,10 +39,10 @@
                 </div>
                 <div class="tool">
                   <div>
-                    <b-button size="sm" @click="handle(index-1)" v-if="value.status[index - 1]"
+                    <b-button size="sm" @click="handle(index)" v-if="value.status[index - 1]"
                               variant="success">断开
                     </b-button>
-                    <b-button size="sm" @click="handle(index-1)" v-else>吸合</b-button>
+                    <b-button size="sm" @click="handle(index)" v-else>吸合</b-button>
                     <b-button size="sm" class="ml-2" @click="offPoint(index)" variant="warning" style="min-width:46px">
                       <span>{{secondList[index - 1].second ? `${secondList[index - 1].second}秒` : '点断'}}</span>
                     </b-button>
@@ -63,7 +63,6 @@
     </b-collapse>
     <b-modal id="my-modal" title="点断" hide-footer>
       <div style="padding: 0 30px;">
-        <!-- <b-form-input type="number" v-model="second" placeholder="输入秒（<60s）"></b-form-input> -->
         <b-form-input id="range-1" v-model="second" type="range" min="0" max="60"></b-form-input>
         <div class="mt-2">点断秒数：{{ second }}秒</div>
       </div>
@@ -116,8 +115,8 @@ export default {
   watch: {
     value(res) {
       if (this.data.branch_num !== res.status.length) {
-        this.GetSystem('state')
-        this.data.branch_num = res.status.length
+        // this.GetSystem('state')
+        // this.data.branch_num = res.status.length
       }
     },
     sysData(res) {
