@@ -231,7 +231,8 @@ export default {
     flip() {
       let data = []
       this.value.status.forEach((el, index) => {
-        data.push(index)
+        console.log(el)
+        data.push(index+1)
       })
       api.relay.flip(data).then(() => {
         this.resetSecondList()
