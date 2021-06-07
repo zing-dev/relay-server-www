@@ -5,11 +5,23 @@
         <b-navbar-nav>
           <img title='logo' :src="config.logo" style="height:30px;margin-right:15px" v-if="config.logo"
                alt="config.logo"/>
-          <b-navbar-brand href="#">{{config.site_name}}</b-navbar-brand>
+          <b-navbar-brand href="#">{{ config.site_name }}</b-navbar-brand>
         </b-navbar-nav>
         <b-navbar-nav class="ml-auto">
-          <b-button size="sm" variant="primary" class="my-2 my-sm-0" v-b-modal.modal-1 @click="version">版本信息
-          </b-button>
+          <b-nav-item>
+            <b-button size="sm" variant="success" id="tooltip-target-1">运行时间</b-button>
+            <b-tooltip target="tooltip-target-1" triggers="hover">
+              <div style="text-align: left">
+                <div>当前:{{ time.current|datetime }}</div>
+                <div>运行:{{ time.running| subtract }}</div>
+                <div>连接:{{ time.connecting|subtract }}</div>
+              </div>
+            </b-tooltip>
+          </b-nav-item>
+          <b-nav-item>
+            <b-button size="sm" variant="primary" class="my-2 my-sm-0" v-b-modal.modal-1 @click="version">版本信息
+            </b-button>
+          </b-nav-item>
         </b-navbar-nav>
       </b-navbar>
     </div>
@@ -72,6 +84,7 @@ import System from './System'
 import {mapActions} from 'vuex'
 import toast from '@/mixins/toast'
 import {api} from '@/libs/https'
+import moment from "moment";
 
 let config = window.Config
 if (config.logo === undefined) {
@@ -86,6 +99,11 @@ export default {
   mixins: [toast],
   data() {
     return {
+      time: {
+        current: {},
+        running: "",
+        connecting: "",
+      },
       logFollow: true,
       socketState: '',
       socket: null,
@@ -106,7 +124,6 @@ export default {
   components: {
     State, System
   },
-  filters: {},
   computed: {},
   mounted() {
     this.createSocket()
@@ -116,8 +133,27 @@ export default {
         .catch(error => {
           this.toast(error, 'danger')
         })
+
+    api.relay.ping().then(res => {
+      if (res.status) {
+        this.time.current = moment()
+        this.time.connecting = res.data.connected_time
+        this.time.running = res.data.running_time
+        // setInterval(this.current, 1000)
+      }
+    });
+  },
+  filters: {
+    datetime: function () {
+      return moment().format('l LTS');
+    },
+    subtract: function (diff) {
+      return moment.duration(-diff, "seconds").humanize(true);
+    }
   },
   methods: {
+    current() {
+    },
     logType(type) {
       if (type === 'error') {
         return 'danger'
@@ -145,12 +181,7 @@ export default {
         wsUrl = scheme + '://' + hostname + wsPort + '/ws';
       }
       this.socket = new WebSocket(wsUrl);
-      [
-        'onopen',
-        'onclose',
-        'onmessage',
-        'onerror'
-      ].forEach(event => {
+      ['onopen', 'onclose', 'onmessage', 'onerror'].forEach(event => {
         this.socket[event] = this[event]
       })
     },

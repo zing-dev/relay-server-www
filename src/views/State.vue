@@ -3,20 +3,15 @@
     <b-card-header header-tag="header" role="tab">
       <b-row>
         <b-col lg="3" md="12" sm="12">
-          <span v-b-toggle.accordion-3>{{data == null ? 32 : data.branch_num}}
-            路继电器
-          </span>
+          <span v-b-toggle.accordion-3> <b-badge variant="primary">{{ data.branch_num }}</b-badge> 路继电器</span>
         </b-col>
         <b-col lg="9" md="12" sm="12">
           <div class="tool">
-            <b-button size="sm" class="ml-2" @click="flip" variant="primary">翻转全部</b-button>
-            <b-button size="sm" class="ml-2" @click="offAll" :disabled="status.off" variant="primary">
-              断开全部
-            </b-button>
-            <b-button size="sm" class="ml-2" @click="onAll" :disabled="status.on" variant="primary">
-              吸合全部
-            </b-button>
-            <b-button size="sm" @click="run" :disabled="status.run" variant="primary">运行</b-button>
+            <b-button size="sm" class="ml-2" @click="flip" variant="success">翻转全部</b-button>
+            <b-button size="sm" class="ml-2" @click="offAll">断开全部</b-button>
+            <b-button size="sm" class="ml-2" @click="onAll" variant="danger">吸合全部</b-button>
+            <b-button size="sm" class="ml-2" @click="run" variant="info">运行</b-button>
+            <b-button size="sm" class="ml-2" @click="reload" variant="outline-info">刷新</b-button>
           </div>
         </b-col>
       </b-row>
@@ -24,42 +19,42 @@
     <b-collapse id="accordion-3" visible accordion="log" role="tabpanel">
       <b-card-body class="scroller pR">
         <Loading v-if="loading.state || JSON.stringify(this.value) === '{}'"></Loading>
-        <template v-else-if="data.branch_num >0">
+        <template v-else-if="data.branch_num > 0">
           <div>
             <b-row>
-              <b-col class="colWrap" v-for="index in data.branch_num" :key="index" lg="6" md="12" sm="12">
+              <b-col class="colWrap" v-for="index in data.branch_num" :key="index" lg="12" md="12" sm="12">
                 <div>
-                  <span class="w6em">第{{index}}路:</span>
-                  <span class="fB" v-if="value.status[index - 1]">
-                    <Icon :name="'link'" style="color: #28a745;"></Icon>
+                  <span class="w6em">第{{ index }}路:</span>
+                  <span class="fB" v-if="value.status[index - 1]" style="color:red;">
+                    <Icon :name="'link'"></Icon>
+                    <b-badge variant="danger" class="ml-2">已吸合</b-badge>
                   </span>
                   <span class="fB" v-else>
-                    <Icon :name="'unlink'" style="color: red;"></Icon>
+                    <Icon :name="'unlink'" style="color:darkslateblue"></Icon>
+                    <b-badge class="ml-2">已断开</b-badge>
                   </span>
                 </div>
                 <div class="tool">
                   <div>
-                    <b-button size="sm" @click="handle(index)" v-if="value.status[index - 1]"
-                              variant="success">断开
+                    <b-button size="sm" @click="handle(index)" variant="outline-danger">翻转</b-button>
+                    <b-button size="sm" class="ml-2" @click="handle(index)" v-if="value.status[index - 1]">断开</b-button>
+                    <b-button size="sm" class="ml-2" @click="handle(index)" v-else variant="danger">吸合</b-button>
+                    <b-button size="sm" class="ml-2" @click="offPoint(index)" v-if="secondList[index - 1].second">
+                      {{ secondList[index - 1].second }}秒
                     </b-button>
-                    <b-button size="sm" @click="handle(index)" v-else>吸合</b-button>
-                    <b-button size="sm" class="ml-2" @click="offPoint(index)" variant="warning" style="min-width:46px">
-                      <span>{{secondList[index-1].second ? `${secondList[index-1].second}秒` : '点断'}}</span>
+                    <b-button size="sm" class="ml-2" @click="offPoint(index)" v-else-if="value.status[index - 1]">
+                      点断
+                    </b-button>
+                    <b-button size="sm" class="ml-2" @click="offPoint(index)" v-else variant="danger">
+                      点吸
                     </b-button>
                   </div>
                 </div>
               </b-col>
             </b-row>
           </div>
-          <div>
-            <span class="w6em">运行时间：</span><span class="running-time">{{value.running_time | time}}</span>
-            <span class="w6em">连接时间：</span><span class="connected-time">{{value.connected_time | time}}</span>
-          </div>
-          <!--          <b-col><span class="w6em">前后端吸合：</span><span class="fB">{{serverConn ? '连接' : '断开'
-          }}</span></b-col>-->
         </template>
       </b-card-body>
-
     </b-collapse>
     <b-modal id="my-modal" title="点断" hide-footer>
       <div style="padding: 0 30px;">
@@ -71,7 +66,6 @@
       </div>
     </b-modal>
   </b-card>
-
 </template>
 <script>
 
@@ -103,10 +97,6 @@ export default {
     }
   },
   filters: {
-    time(val) {
-      if (val)
-        return parseInt(val / 86400) + "天 " + parseInt(val / 3600 % 24) + "时 " + parseInt(val / 60) % 60 + "分 " + parseInt(val % 60) + "秒"
-    },
     times(val) {
       if (val)
         return parseInt(val / 1000000000)
@@ -115,8 +105,6 @@ export default {
   watch: {
     value(res) {
       if (this.data.branch_num !== res.status.length) {
-        // this.GetSystem('state')
-        // this.data.branch_num = res.status.length
       }
     },
     sysData(res) {
@@ -151,6 +139,9 @@ export default {
       let data = [...this.secondList]
       this.$set(this, 'secondList', data)
     },
+    reload() {
+      window.location.reload()
+    },
     run() {
       this.status.run = true
       api.relay.run().then(res => {
@@ -169,41 +160,29 @@ export default {
     onAll() {
       api.relay.onAll().then(res => {
         if (res.status) {
-          this.status.on = true
-          this.status.off = false
           this.toast('闭合所有路成功', 'success')
         } else {
-          this.status.on = false
-          this.status.off = true
           this.toast('闭合所有路失败: ' + res.message, 'danger')
         }
         this.resetSecondList()
       }, error => {
         this.toast(error, 'danger')
-        this.status.on = false
-        this.status.off = true
       })
     },
     offAll() {
       api.relay.offAll().then(res => {
         if (res.status) {
-          this.status.on = false
-          this.status.off = true
           this.toast('断开所有路成功', 'success')
         } else {
-          this.status.off = false
-          this.status.on = true
           this.toast('断开所有路失败: ' + res.message, 'danger')
         }
         this.resetSecondList()
       }, error => {
-        this.status.off = false
-        this.status.on = true
         this.toast(error, 'danger')
       })
     },
     handle(index, callback) {
-      if (this.value.status[index-1]) {
+      if (this.value.status[index - 1]) {
         api.relay.off(index).then(res => {
           if (res.status) {
             this.toast('闭合成功', 'success')
@@ -211,11 +190,12 @@ export default {
             this.toast('闭合失败: ' + res.message, 'danger')
             if (callback) callback()
           }
-          this.resetSecondList()
+          this.resetTimer(index-1)
         }, error => {
           this.toast(error, 'danger')
         })
       } else {
+        this.resetTimer(index-1)
         api.relay.on(index).then(res => {
           if (res.status) {
             this.toast('断开成功', 'success')
@@ -231,7 +211,7 @@ export default {
     flip() {
       let data = []
       this.value.status.forEach((el, index) => {
-        data.push(index+1)
+        data.push(index + 1)
       })
       api.relay.flip(data).then(() => {
         this.resetSecondList()
@@ -264,6 +244,14 @@ export default {
       }
       this.$bvModal.hide('my-modal')
     },
+    resetTimer(index) {
+      let t = this.secondList[index]
+      if (t !== null) {
+        clearInterval(t.second)
+        this.secondList[index].timer = null
+        this.secondList[index].second = 0
+      }
+    },
     countDown(index) {
       this.secondList[index].timer = setInterval(() => {
         if (this.secondList[index].second <= 1) {
@@ -286,7 +274,8 @@ export default {
 }
 
 .w6em {
-  width: 6em;
+  min-width: 6em;
+  max-width: 10em;
   display: inline-block
 }
 

@@ -40,6 +40,9 @@ export const api = {
         run() {
             return async(getJson('api/run'))
         },
+        ping() {
+            return async(getJson('api/ping'))
+        },
         onAll() {
             return async(getJson('api/on-all'))
         },
