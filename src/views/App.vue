@@ -73,7 +73,7 @@ import System from './System'
 import {mapActions} from 'vuex'
 import toast from '@/mixins/toast'
 import {api} from '@/libs/https'
-
+  /*global showLogo*/
 export default {
   name: 'app',
   mixins: [toast],
@@ -86,7 +86,7 @@ export default {
       serverConn: true,
       msgEvent: null,
       logs: [],
-      LOGO: window['LOGO'] || null,
+      LOGO: window['LOGO'] || null ,
       show: true,
       items: [],
       fields: [
@@ -113,6 +113,7 @@ export default {
         .catch(error => {
           this.toast(error, 'danger')
         })
+        console.log(showLogo)
   },
   methods: {
     logType(type) {
