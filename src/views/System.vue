@@ -144,7 +144,6 @@ export default {
       this.data.white_list.push('')
     },
     del(index) {
-      console.log(index)
       if (this.data.white_list[index]) {
         this.data.white_list.splice(index, 1)
         this.update()

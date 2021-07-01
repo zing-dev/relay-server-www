@@ -3,17 +3,30 @@
     <div>
       <b-navbar toggleable="lg" type="dark">
         <b-navbar-nav>
-          <img :src="'./' + LOGO" style="height:30px;margin-right:15px" v-if="widthLogo"/>
-          <b-navbar-brand href="#">继电器模块</b-navbar-brand>
+          <img title='logo' :src="config.logo" style="height:30px;margin-right:15px" v-if="config.logo"
+               alt="config.logo"/>
+          <b-navbar-brand href="#">{{ config.site_name }}</b-navbar-brand>
         </b-navbar-nav>
         <b-navbar-nav class="ml-auto">
-          <b-button size="sm" variant="primary" class="my-2 my-sm-0" v-b-modal.modal-1 @click="version">版本信息
-          </b-button>
+          <b-nav-item>
+            <b-button size="sm" variant="success" id="tooltip-target-1">运行时间</b-button>
+            <b-tooltip target="tooltip-target-1" triggers="hover">
+              <div style="text-align: left">
+                <div>当前:{{ time.current|datetime }}</div>
+                <div>运行:{{ time.running| subtract }}</div>
+                <div>连接:{{ time.connecting|subtract }}</div>
+              </div>
+            </b-tooltip>
+          </b-nav-item>
+          <b-nav-item>
+            <b-button size="sm" variant="primary" class="my-2 my-sm-0" v-b-modal.modal-1 @click="version">版本信息
+            </b-button>
+          </b-nav-item>
         </b-navbar-nav>
       </b-navbar>
     </div>
     <div class="view">
-      <b-container class="home" fluid>
+      <b-container class="home" fluid="fluid">
         <b-row class="h100pct">
           <b-col>
             <div role="tablist" class="mb-4">
@@ -29,10 +42,8 @@
                 <b-card-header class="header-control" header-tag="header" role="tab">
                   <span v-b-toggle.accordion-3>日志</span>
                   <div class="tool">
-                    <b-form-checkbox
-                        :checked="logFollow"
-                        @change="followLog"
-                    >滚动条跟随
+                    <b-form-checkbox :checked="logFollow" @change="followLog">
+                      滚动条跟随
                     </b-form-checkbox>
                     <b-button class="ml-3" size="sm" @click="clearLogs">清空日志</b-button>
                   </div>
@@ -73,12 +84,26 @@ import System from './System'
 import {mapActions} from 'vuex'
 import toast from '@/mixins/toast'
 import {api} from '@/libs/https'
-  /*global showLogo*/
+import moment from "moment";
+
+let config = window.Config
+if (config.logo === undefined) {
+  config.logo = ''
+}
+if (config.site_name === undefined || config.site_name === '') {
+  config.site_name = '继电器模块应用'
+}
+
 export default {
   name: 'app',
   mixins: [toast],
   data() {
     return {
+      time: {
+        current: {},
+        running: "",
+        connecting: "",
+      },
       logFollow: true,
       socketState: '',
       socket: null,
@@ -86,7 +111,7 @@ export default {
       serverConn: true,
       msgEvent: null,
       logs: [],
-      LOGO: window['LOGO'] || null ,
+      config,
       show: true,
       items: [],
       fields: [
@@ -99,12 +124,7 @@ export default {
   components: {
     State, System
   },
-  filters: {},
-  computed: {
-    widthLogo() {
-      return this.LOGO && this.LOGO !== ''
-    }
-  },
+  computed: {},
   mounted() {
     this.createSocket()
     this.GetSystem()
@@ -113,9 +133,27 @@ export default {
         .catch(error => {
           this.toast(error, 'danger')
         })
-        console.log(showLogo)
+
+    api.relay.ping().then(res => {
+      if (res.status) {
+        this.time.current = moment()
+        this.time.connecting = res.data.connected_time
+        this.time.running = res.data.running_time
+        // setInterval(this.current, 1000)
+      }
+    });
+  },
+  filters: {
+    datetime: function () {
+      return moment().format('l LTS');
+    },
+    subtract: function (diff) {
+      return moment.duration(-diff, "seconds").humanize(true);
+    }
   },
   methods: {
+    current() {
+    },
     logType(type) {
       if (type === 'error') {
         return 'danger'
@@ -143,12 +181,7 @@ export default {
         wsUrl = scheme + '://' + hostname + wsPort + '/ws';
       }
       this.socket = new WebSocket(wsUrl);
-      [
-        'onopen',
-        'onclose',
-        'onmessage',
-        'onerror'
-      ].forEach(event => {
+      ['onopen', 'onclose', 'onmessage', 'onerror'].forEach(event => {
         this.socket[event] = this[event]
       })
     },

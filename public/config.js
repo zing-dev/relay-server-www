@@ -1,5 +1,4 @@
-var LOGO = 'headlogo.png';
-var showLogo = {
-    type: 1,
-    img: 'atian1.png'
-}
+window.Config = {
+    site_name: '继电器模块',
+    logo: 'logo.png'
+};

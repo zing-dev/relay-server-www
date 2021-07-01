@@ -9,8 +9,12 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import './assets/style.css'
 import '@/svg/index.js'
 
-Vue.use(BootstrapVue)
+import moment from 'moment'//导入文件
 
+Vue.prototype.$moment = moment;//赋值使用
+moment.locale('zh-cn');//需要汉化
+
+Vue.use(BootstrapVue)
 
 Vue.config.productionTip = false
 
