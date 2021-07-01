@@ -47,7 +47,7 @@
           </div>
           <div class="inputWrap">
             <div class="m-label">
-              <label>白名单:</label>
+              <label>主机IP:</label>
             </div>
             <div>
               <template v-for="(item, index) in data.white_list">

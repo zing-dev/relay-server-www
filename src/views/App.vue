@@ -12,9 +12,9 @@
             <b-button size="sm" variant="success" id="tooltip-target-1">运行时间</b-button>
             <b-tooltip target="tooltip-target-1" triggers="hover">
               <div style="text-align: left">
-                <div>当前:{{ time.current|datetime }}</div>
-                <div>运行:{{ time.running| subtract }}</div>
-                <div>连接:{{ time.connecting|subtract }}</div>
+                <div>当前:{{ datetime() }}</div>
+                <div>运行:{{ subtract(time.running) }}</div>
+                <div>连接:{{ subtract(time.connecting)}}</div>
               </div>
             </b-tooltip>
           </b-nav-item>
@@ -118,13 +118,27 @@ export default {
         {key: 'log', label: '日志'},
         {key: 'tag', label: '标签'},
         {key: 'created_at', label: '创建时间'},
-      ]
+      ],
+      inTime: new Date()
     }
   },
   components: {
     State, System
   },
-  computed: {},
+  computed: {
+    datetime: function () {
+      return function(){
+        return moment().format('l LTS');
+      }
+     
+    },
+    subtract: function () {
+      return function(diff){
+        let innerseconds = parseInt((new Date().getTime() - this.inTime.getTime())/1000)
+        return moment.duration(-diff-innerseconds, "seconds").humanize(true);
+      }
+    }
+  },
   mounted() {
     this.createSocket()
     this.GetSystem()
@@ -144,13 +158,8 @@ export default {
     });
   },
   filters: {
-    datetime: function () {
-      return moment().format('l LTS');
-    },
-    subtract: function (diff) {
-      return moment.duration(-diff, "seconds").humanize(true);
-    }
   },
+  
   methods: {
     current() {
     },
