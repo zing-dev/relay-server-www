@@ -111,10 +111,13 @@ export default {
     sysData(res) {
       if (res.status) {
         if (res.data.branch_length > 0 ) {
-          this.secondList = new Array(res.data.branch_length).fill({
-            timer: null,
-            second: 0
-          })
+          this.secondList = new Array(res.data.branch_length)
+          for (let i = 0; i < res.data.branch_length; i++) {
+            this.secondList[i] = {
+              timer: null,
+              second: 0
+            }
+          }
         }
       }
     }
