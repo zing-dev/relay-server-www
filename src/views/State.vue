@@ -21,11 +21,11 @@
         <Loading v-if="value.loading"></Loading>
         <template v-else>
           <b-overlay :show="!value.connected">
-             <template v-slot:overlay>
-              <div style="text-align:center">
-                <div>继电器连接失败!</div>
-                <div>请修改串口重新连接!</div>
-              </div>
+            <template v-slot:overlay>
+              <b-alert variant="danger" show>
+                <div>继电器连接失败: {{ value.message }}</div>
+                <div>请修改串口后重新连接!!!</div>
+              </b-alert>
             </template>
             <div v-if="secondList.length">
               <b-row>
@@ -44,7 +44,8 @@
                   <div class="tool">
                     <div>
                       <b-button size="sm" @click="handle(index)" variant="outline-danger">翻转</b-button>
-                      <b-button size="sm" class="ml-2" @click="handle(index)" v-if="value.status[index - 1]">断开</b-button>
+                      <b-button size="sm" class="ml-2" @click="handle(index)" v-if="value.status[index - 1]">断开
+                      </b-button>
                       <b-button size="sm" class="ml-2" @click="handle(index)" v-else variant="danger">吸合</b-button>
                       <b-button size="sm" class="ml-2" @click="offPoint(index)" v-if="secondList[index - 1].second">
                         {{ secondList[index - 1].second }}秒
@@ -77,7 +78,7 @@
 </template>
 <script>
 
-import {api} from '@/libs/https'
+import { api } from '@/libs/https'
 import Loading from '@/components/Loading'
 import toast from '@/mixins/toast'
 import { mapGetters } from 'vuex'
@@ -87,7 +88,7 @@ export default {
   props: ['value'],
   components: { Loading },
   mixins: [toast],
-  data() {
+  data () {
     return {
       socketState: '',
       second: '5',
@@ -96,19 +97,19 @@ export default {
       status: {
         run: false,
         on: false,
-        off: false
+        off: false,
       },
       secondList: [],
     }
   },
   filters: {
-    times(val) {
+    times (val) {
       if (val)
         return parseInt(val / 1000000000)
-    }
+    },
   },
   watch: {
-    sysData(res) {
+    sysData (res) {
       if (res.status) {
         if (res.data.branch_length > 0 ) {
           this.secondList = new Array(res.data.branch_length)
@@ -120,13 +121,13 @@ export default {
           }
         }
       }
-    }
+    },
   },
-  computed:{
-    ...mapGetters(['sysData'])
+  computed: {
+    ...mapGetters(['sysData']),
   },
   methods: {
-    resetSecondList() {
+    resetSecondList () {
       this.secondList.forEach(el => {
         clearInterval(el.timer)
         el.timer = null
@@ -135,10 +136,10 @@ export default {
       let data = [...this.secondList]
       this.$set(this, 'secondList', data)
     },
-    reload() {
+    reload () {
       window.location.reload()
     },
-    run() {
+    run () {
       this.status.run = true
       api.relay.run().then(res => {
         if (res.status) {
@@ -153,7 +154,7 @@ export default {
         this.status.run = false
       })
     },
-    onAll() {
+    onAll () {
       api.relay.onAll().then(res => {
         if (res.status) {
           this.toast('闭合所有路成功', 'success')
@@ -165,7 +166,7 @@ export default {
         this.toast(error, 'danger')
       })
     },
-    offAll() {
+    offAll () {
       api.relay.offAll().then(res => {
         if (res.status) {
           this.toast('断开所有路成功', 'success')
@@ -177,7 +178,7 @@ export default {
         this.toast(error, 'danger')
       })
     },
-    handle(index, callback) {
+    handle (index, callback) {
       if (this.value.status[index - 1]) {
         api.relay.off(index).then(res => {
           if (res.status) {
@@ -186,12 +187,12 @@ export default {
             this.toast('闭合失败: ' + res.message, 'danger')
             if (callback) callback()
           }
-          this.resetTimer(index-1)
+          this.resetTimer(index - 1)
         }, error => {
           this.toast(error, 'danger')
         })
       } else {
-        this.resetTimer(index-1)
+        this.resetTimer(index - 1)
         api.relay.on(index).then(res => {
           if (res.status) {
             this.toast('断开成功', 'success')
@@ -204,7 +205,7 @@ export default {
         })
       }
     },
-    flip() {
+    flip () {
       let data = []
       this.value.status.forEach((el, index) => {
         data.push(index + 1)
@@ -215,15 +216,15 @@ export default {
         this.toast(error, 'danger')
       })
     },
-    offPoint(index) {
+    offPoint (index) {
       if (this.secondList[index - 1].timer) return
       this.onOffPoint = index - 1
       this.second = 5
       this.$bvModal.show('my-modal')
     },
-    confirm() {
+    confirm () {
       if (this.value.status[this.onOffPoint]) {
-        api.relay.offPoint({branch: this.onOffPoint + 1, time: this.second * 1000}).then(() => {
+        api.relay.offPoint({ branch: this.onOffPoint + 1, time: this.second * 1000 }).then(() => {
           this.$set(this.secondList[this.onOffPoint], 'second', this.second)
           this.secondList[this.onOffPoint].second = this.second
           this.countDown(this.onOffPoint)
@@ -231,7 +232,7 @@ export default {
           this.toast(error, 'danger')
         })
       } else {
-        api.relay.onPoint({branch: this.onOffPoint + 1, time: this.second * 1000}).then(() => {
+        api.relay.onPoint({ branch: this.onOffPoint + 1, time: this.second * 1000 }).then(() => {
           this.secondList[this.onOffPoint].second = this.second
           this.countDown(this.onOffPoint)
         }, error => {
@@ -240,7 +241,7 @@ export default {
       }
       this.$bvModal.hide('my-modal')
     },
-    resetTimer(index) {
+    resetTimer (index) {
       let t = this.secondList[index]
       if (t !== null) {
         clearInterval(t.second)
@@ -248,7 +249,7 @@ export default {
         this.secondList[index].second = 0
       }
     },
-    countDown(index) {
+    countDown (index) {
       this.secondList[index].timer = setInterval(() => {
         if (this.secondList[index].second <= 1) {
           clearInterval(this.secondList[index].timer)
@@ -261,7 +262,7 @@ export default {
         }
       }, 1000)
     },
-  }
+  },
 }
 </script>
 <style scoped>

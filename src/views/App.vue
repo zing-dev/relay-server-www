@@ -81,7 +81,7 @@
 <script>
 import State from './State.vue'
 import System from './System'
-import {mapActions, mapMutations} from 'vuex'
+import {mapActions} from 'vuex'
 import toast from '@/mixins/toast'
 import {api} from '@/libs/https'
 import moment from "moment";
@@ -132,7 +132,7 @@ export default {
       return function(){
         return moment().format('l LTS');
       }
-     
+
     },
     subtract: function () {
       return function(diff){
@@ -160,7 +160,7 @@ export default {
   },
   filters: {
   },
-  
+
   methods: {
     current() {
     },
