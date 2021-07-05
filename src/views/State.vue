@@ -19,39 +19,49 @@
     <b-collapse id="accordion-3" visible accordion="log" role="tabpanel">
       <b-card-body class="scroller pR">
         <Loading v-if="value.loading"></Loading>
-          <div v-if="secondList.length && value.connected">
-            <b-row>
-              <b-col class="colWrap" v-for="index in secondList.length" :key="index" lg="12" md="12" sm="12">
-                <div>
-                  <span class="w6em">第{{ index }}路:</span>
-                  <span class="fB" v-if="value.status[index - 1]" style="color:red;">
-                    <Icon :name="'link'"></Icon>
-                    <b-badge variant="danger" class="ml-2">已吸合</b-badge>
-                  </span>
-                  <span class="fB" v-else>
-                    <Icon :name="'unlink'" style="color:darkslateblue"></Icon>
-                    <b-badge class="ml-2">已断开</b-badge>
-                  </span>
-                </div>
-                <div class="tool">
+        <template v-else>
+          <b-overlay :show="!value.connected">
+             <template v-slot:overlay>
+              <div style="text-align:center">
+                <div>继电器连接失败!</div>
+                <div>请修改串口重新连接!</div>
+              </div>
+            </template>
+            <div v-if="secondList.length">
+              <b-row>
+                <b-col class="colWrap" v-for="index in secondList.length" :key="index" lg="12" md="12" sm="12">
                   <div>
-                    <b-button size="sm" @click="handle(index)" variant="outline-danger">翻转</b-button>
-                    <b-button size="sm" class="ml-2" @click="handle(index)" v-if="value.status[index - 1]">断开</b-button>
-                    <b-button size="sm" class="ml-2" @click="handle(index)" v-else variant="danger">吸合</b-button>
-                    <b-button size="sm" class="ml-2" @click="offPoint(index)" v-if="secondList[index - 1].second">
-                      {{ secondList[index - 1].second }}秒
-                    </b-button>
-                    <b-button size="sm" class="ml-2" @click="offPoint(index)" v-else-if="value.status[index - 1]">
-                      点断
-                    </b-button>
-                    <b-button size="sm" class="ml-2" @click="offPoint(index)" v-else variant="danger">
-                      点吸
-                    </b-button>
+                    <span class="w6em">第{{ index }}路:</span>
+                    <span class="fB" v-if="value.status[index - 1]" style="color:red;">
+                      <Icon :name="'link'"></Icon>
+                      <b-badge variant="danger" class="ml-2">已吸合</b-badge>
+                    </span>
+                    <span class="fB" v-else>
+                      <Icon :name="'unlink'" style="color:darkslateblue"></Icon>
+                      <b-badge class="ml-2">已断开</b-badge>
+                    </span>
                   </div>
-                </div>
-              </b-col>
-            </b-row>
-          </div>
+                  <div class="tool">
+                    <div>
+                      <b-button size="sm" @click="handle(index)" variant="outline-danger">翻转</b-button>
+                      <b-button size="sm" class="ml-2" @click="handle(index)" v-if="value.status[index - 1]">断开</b-button>
+                      <b-button size="sm" class="ml-2" @click="handle(index)" v-else variant="danger">吸合</b-button>
+                      <b-button size="sm" class="ml-2" @click="offPoint(index)" v-if="secondList[index - 1].second">
+                        {{ secondList[index - 1].second }}秒
+                      </b-button>
+                      <b-button size="sm" class="ml-2" @click="offPoint(index)" v-else-if="value.status[index - 1]">
+                        点断
+                      </b-button>
+                      <b-button size="sm" class="ml-2" @click="offPoint(index)" v-else variant="danger">
+                        点吸
+                      </b-button>
+                    </div>
+                  </div>
+                </b-col>
+              </b-row>
+            </div>
+          </b-overlay>
+        </template>
       </b-card-body>
     </b-collapse>
     <b-modal id="my-modal" title="点断" hide-footer>
