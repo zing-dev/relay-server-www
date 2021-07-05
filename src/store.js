@@ -6,16 +6,20 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        loading: {
-            system: true,
-            stateP: true
-        },
+        systemLoading: false,
         sysData: null
     },
+    getters: {
+        systemLoading: state =>{
+            return state.systemLoading
+        },
+        sysData: state => {
+            return state.sysData
+        }
+    },
     mutations: {
-        setLoading(state, {system, stateP}) {
-            state.loading.system = system
-            state.loading.stateP = stateP
+        setSysLoading(state, data){
+            state.systemLoading = data
         },
         setSystem(state, sysData) {
             state.sysData = sysData
@@ -23,17 +27,12 @@ export default new Vuex.Store({
     },
     actions: {
         GetSystem({commit}, state) {
-            const defaultLoading = {system: false, stateP: false}
             if (state) {
-                let loading = {...defaultLoading}
-                loading[state] = true
-                commit('setLoading', loading)
-            } else {
-                commit('setLoading', {system: true, stateP: true})
-            }
+                commit('setSysLoading', true)
+            } 
             return new Promise((resolve, reject) => {
                 api.config.get().then(res => {
-                    commit('setLoading', defaultLoading)
+                    commit('setSysLoading', false)
                     if (!res.status) {
                         reject('网络连接异常')
                     } else {
@@ -41,7 +40,7 @@ export default new Vuex.Store({
                         resolve()
                     }
                 }).catch(error => {
-                    commit('setLoading', defaultLoading)
+                    commit('setSysLoading', false)
                     reject(error)
                 })
             })

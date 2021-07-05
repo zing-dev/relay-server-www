@@ -30,7 +30,7 @@
         <b-row class="h100pct">
           <b-col>
             <div role="tablist" class="mb-4">
-              <State :value="stateVal" :serverConn='serverConn'></State>
+              <State :value="stateVal" ></State>
             </div>
             <div role="tablist">
               <System></System>
@@ -81,7 +81,7 @@
 <script>
 import State from './State.vue'
 import System from './System'
-import {mapActions} from 'vuex'
+import {mapActions, mapMutations} from 'vuex'
 import toast from '@/mixins/toast'
 import {api} from '@/libs/https'
 import moment from "moment";
@@ -107,7 +107,9 @@ export default {
       logFollow: true,
       socketState: '',
       socket: null,
-      stateVal: {},
+      stateVal: {
+        loading: true
+      },
       serverConn: true,
       msgEvent: null,
       logs: [],
@@ -153,7 +155,6 @@ export default {
         this.time.current = moment()
         this.time.connecting = res.data.connected_time
         this.time.running = res.data.running_time
-        // setInterval(this.current, 1000)
       }
     });
   },
@@ -199,10 +200,13 @@ export default {
     },
     onclose() {
       this.socketState = 'DISCONNECTED';
-      this.serverConn = false
     },
     onerror() {
+      this.toast("获取版本信息失败", 'danger')
       this.socketState = 'DISCONNECTED';
+      this.stateVal = {
+        loading: false
+      }
     },
     onmessage(e) {
       this.getData(e)
@@ -210,7 +214,7 @@ export default {
     getData(e) {
       let msg = JSON.parse(e.data)
       if (msg.type === 'status') {
-        this.stateVal = msg.data
+        this.stateVal = {...msg.data, loading: false}
       } else if (msg.type === 'log') {
         if (this.logs.length > 100) {
           this.logs.shift()

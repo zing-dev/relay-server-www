@@ -3,7 +3,7 @@
     <b-card-header header-tag="header" role="tab">
       <b-row>
         <b-col lg="3" md="12" sm="12">
-          <span v-b-toggle.accordion-3> <b-badge variant="primary">{{ data.branch_num }}</b-badge> 路继电器</span>
+          <span v-b-toggle.accordion-3> <b-badge variant="primary">{{ secondList.length }}</b-badge> 路继电器</span>
         </b-col>
         <b-col lg="9" md="12" sm="12">
           <div class="tool">
@@ -18,11 +18,10 @@
     </b-card-header>
     <b-collapse id="accordion-3" visible accordion="log" role="tabpanel">
       <b-card-body class="scroller pR">
-        <Loading v-if="loading.state || JSON.stringify(this.value) === '{}'"></Loading>
-        <template v-else-if="data.branch_num > 0">
-          <div>
+        <Loading v-if="value.loading"></Loading>
+          <div v-if="secondList.length && value.connected">
             <b-row>
-              <b-col class="colWrap" v-for="index in data.branch_num" :key="index" lg="12" md="12" sm="12">
+              <b-col class="colWrap" v-for="index in secondList.length" :key="index" lg="12" md="12" sm="12">
                 <div>
                   <span class="w6em">第{{ index }}路:</span>
                   <span class="fB" v-if="value.status[index - 1]" style="color:red;">
@@ -53,7 +52,6 @@
               </b-col>
             </b-row>
           </div>
-        </template>
       </b-card-body>
     </b-collapse>
     <b-modal id="my-modal" title="点断" hide-footer>
@@ -72,12 +70,12 @@
 import {api} from '@/libs/https'
 import Loading from '@/components/Loading'
 import toast from '@/mixins/toast'
-import {mapActions, mapState, mapMutations} from 'vuex'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'state',
-  props: ['value', 'serverConn'],
-  components: {Loading},
+  props: ['value'],
+  components: { Loading },
   mixins: [toast],
   data() {
     return {
@@ -85,15 +83,12 @@ export default {
       second: '5',
       onOffPoint: 0,
       socket: null,
-      data: {
-        branch_num: 0
-      },
       status: {
         run: false,
         on: false,
         off: false
       },
-      secondList: []
+      secondList: [],
     }
   },
   filters: {
@@ -103,33 +98,21 @@ export default {
     }
   },
   watch: {
-    value(res) {
-      if (this.data.branch_num !== res.status.length) {
-      }
-    },
     sysData(res) {
       if (res.status) {
-        if (res.data.branch_length > 0) {
-          this.data.branch_num = res.data.branch_length
-          this.secondList = new Array(res.data.branch_length)
-          for (let i = 0; i < res.data.branch_length; i++) {
-            this.secondList[i] = {
-              timer: null,
-              second: 0
-            }
-          }
+        if (res.data.branch_length > 0 ) {
+          this.secondList = new Array(res.data.branch_length).fill({
+            timer: null,
+            second: 0
+          })
         }
       }
     }
   },
-  computed: mapState(['loading', 'sysData']),
-  created() {
-  },
-  mounted() {
+  computed:{
+    ...mapGetters(['sysData'])
   },
   methods: {
-    ...mapActions(['GetSystem']),
-    ...mapMutations(['setLoading']),
     resetSecondList() {
       this.secondList.forEach(el => {
         clearInterval(el.timer)

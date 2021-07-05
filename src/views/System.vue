@@ -8,7 +8,7 @@
     </b-card-header>
     <b-collapse id="accordion-3" visible accordion="log" role="tabpanel">
       <b-card-body class="scroller pR">
-        <Loading v-if="loading.system"></Loading>
+        <Loading v-if="systemLoading "></Loading>
         <b-form>
           <div class="inputWrap">
             <div class="">
@@ -16,7 +16,7 @@
             </div>
             <div>
               <b-form-input type="number" v-model="data.port" @change="update"
-                            :disabled="loading.system"></b-form-input>
+                            :disabled="systemLoading"></b-form-input>
             </div>
           </div>
           <div class="inputWrap">
@@ -25,7 +25,7 @@
             </div>
             <div>
               <b-form-input type="number" v-model="data.slave_id" @change="update"
-                            :disabled="loading.system"></b-form-input>
+                            :disabled="systemLoading"></b-form-input>
             </div>
           </div>
           <div class="inputWrap">
@@ -33,7 +33,7 @@
               <label>继电器串口:</label>
             </div>
             <div>
-              <b-form-input v-model="data.address" @change="update" :disabled="loading.system"></b-form-input>
+              <b-form-input v-model="data.address" @change="update" :disabled="systemLoading"></b-form-input>
             </div>
           </div>
           <div class="inputWrap">
@@ -42,7 +42,7 @@
             </div>
             <div>
               <b-form-input type="number" v-model="data.branch_length" @change="update"
-                            :disabled="loading.system"></b-form-input>
+                            :disabled="systemLoading"></b-form-input>
             </div>
           </div>
           <div class="inputWrap">
@@ -54,7 +54,7 @@
                 <div :key="index" v-if="data.white_list.length "
                      style="display:flex;align-items:center;  margin-bottom: 10px">
                   <div>
-                    <b-form-input v-model="data.white_list[index]" :disabled="loading.system"></b-form-input>
+                    <b-form-input v-model="data.white_list[index]" :disabled="systemLoading"></b-form-input>
                   </div>
                   <div class="iconWrap">
                     <div v-if="item !=='::1' && item !== '127.0.0.1'" @click="confirm(item)">
@@ -109,18 +109,18 @@ export default {
   },
   mounted() {
   },
-  computed: mapState(['loading', 'sysData']),
+  computed: mapState(['systemLoading', 'sysData']),
   methods: {
     ...mapActions(['GetSystem']),
-    ...mapMutations(['setLoading']),
+    ...mapMutations(['setSysLoading']),
     refresh() {
-      this.GetSystem('system').then(() => {
+      this.GetSystem(1).then(() => {
       }).catch(error => {
         this.toast(error, 'danger')
       })
     },
     update() {
-      this.setLoading({system: true})
+      this.setSysLoading(true)
       let {port, slave_id, address, branch_length, white_list} = this.data
       let data = {
         port: parseFloat(port),
@@ -129,14 +129,14 @@ export default {
         address, white_list
       }
       api.config.set(JSON.stringify(data)).then(res => {
-        this.setLoading({system: false})
+        this.setSysLoading(false)
         if (res.status) {
           this.toast('修改成功', 'success')
         } else {
           this.toast('修改失败: ' + res.message, 'danger')
         }
       }, error => {
-        this.setLoading({system: false})
+        this.setSysLoading(false)
         this.toast(error, 'danger')
       })
     },
